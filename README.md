@@ -1,6 +1,8 @@
 # AlphaTTT
 AI for enhanced Tic-Tac-Toe
 
+### ZeroTTT.ipynb
+Second approach to the problem without utilizing any human knowledge, just self-play.
 
 ### gym.py
 Trains the policy network using the REINFORCE algorithm.
