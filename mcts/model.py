@@ -9,10 +9,9 @@ from torch.optim import AdamW
 from mcts import MCTS
 from environment import Environment
 
-def softXEnt (input, target): # temporary
-    logprobs = torch.nn.functional.log_softmax (input, dim = 1)
-    return  -(target * logprobs).sum() / input.shape[0]
-
+def softXEnt (inp, target): # temporary
+    logprobs = torch.nn.functional.log_softmax (inp, dim = 1)
+    return  -(target * logprobs).sum() / inp.shape[0]
 
 def append_state(states, labels, state, label):
   # Augmentation
@@ -62,7 +61,7 @@ class Brain(nn.Module):
 
     # Policy Head:
     p = self.pol_conv1(x)
-    x = F.relu(x)
+    p = F.relu(p)
 
     p = p.view(-1, self.input_shape[1]*self.input_shape[2])
     p = F.softmax(p, dim=1)
@@ -70,15 +69,14 @@ class Brain(nn.Module):
 
     # Value Head:
     v = self.val_conv1(x)
-    x = F.relu(x)
+    v = F.relu(v)
     v = self.flatten(v)
     v = self.val_linear1(v)
-    x = F.relu(x)
+    v = F.relu(v)
     v = self.val_linear2(v)
     v = torch.tanh(v)
 
     return p, v
-
 
 class ZeroTTT():
   def __init__(self, brain_path=None, opt_path=None, board_len=10, lr=3e-4, weight_decay=0.0):
