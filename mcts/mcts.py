@@ -1,5 +1,8 @@
+import math
 import random
 import numpy as np
+
+from environment import split_state
 
 def ucb_score(child_prior, parent_visit_count, child_visit_count):
   # pb_c = math.log((parent_visit_count + 19652 + 1)/19652) + 1.25
