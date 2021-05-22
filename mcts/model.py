@@ -7,6 +7,7 @@ from torch.nn import functional as F
 from torch.optim import AdamW
 
 from mcts import MCTS
+from environment import split_state
 from environment import Environment
 
 torch.manual_seed(80085)
@@ -157,7 +158,7 @@ class ZeroTTT():
           append_state(states, policy_labels, env.board, mcts.get_pi())
         elif env.turn == env.o_token: # swap persepctive so O tokens are positive and X tokens are negative
           append_state(states, policy_labels, (-1)*env.board, mcts.get_pi())
-        
+
         val_chunk += [env.turn]*8 # accounting for augmentation
 
         move = mcts.select_move(tau=tau)

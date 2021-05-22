@@ -148,6 +148,7 @@ class MCTS():
     return chosen.action
 
   def get_pi(self, tau=1.0, as_prob=True):
+    # Currently doesnt even use Tau but tau is used for this in the paper
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
 
     for child in self.root.children:
