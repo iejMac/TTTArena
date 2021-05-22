@@ -116,7 +116,6 @@ class MCTS():
   def search(self): # builds the search tree from the root node
     for i in range(self.num_simulations):
       self.root.find_leaf(self.model)
-
     return
 
   def select_move(self, tau=0.0, external_move=None):
@@ -153,8 +152,6 @@ class MCTS():
 
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
-
-    print(move_dist)
 
     if as_prob is True:
       move_dist = np_softmax(move_dist)

@@ -1,5 +1,4 @@
 import os
-import time
 import numpy as np
 
 import torch
@@ -66,7 +65,7 @@ class Brain(nn.Module):
     # Policy Head:
     p = self.pol_conv1(x)
     p = F.relu(p)
-    p = self.pol_conv2(x)
+    p = self.pol_conv2(p)
 
     p = p.view(-1, self.input_shape[1]*self.input_shape[2])
     p = F.softmax(p, dim=1)
@@ -135,20 +134,14 @@ class ZeroTTT():
     value_labels = []
     val_chunk = []
 
-
-    best_model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', board_len=self.board_len) # best model always generates data
     env = Environment(board_len=self.board_len)
-
-    t0 = time.time()
 
     for game_nr in range(n_games):
       
-      mcts = MCTS(best_model, env.board, num_simulations=num_simulations)
+      mcts = MCTS(self, env.board, num_simulations=num_simulations)
       tau = 1.0
 
-      print(time.time() - t0)
       print(f"Game {game_nr+1}...")
-      t0 = time.time()
 
       while env.game_over() == 10:
 
