@@ -4,6 +4,9 @@ import numpy as np
 
 from environment import split_state
 
+np.random.seed(80085)
+random.seed(80085)
+
 def ucb_score(child_prior, parent_visit_count, child_visit_count):
   # pb_c = math.log((parent_visit_count + 19652 + 1)/19652) + 1.25
   pb_c = math.sqrt(parent_visit_count) / (child_visit_count + 1)
@@ -42,8 +45,8 @@ class Node():
 
     # Add dirichlet noise if root state:
     if is_root is True:
-      dir = np.random.dirichlet([0.03]*len(self.state)*len(self.state)).reshape((self.state.shape))
-      p_vals = (1 - self.alpha) * p_vals + self.alpha * dir
+      dirichlet = np.random.dirichlet([0.03]*len(self.state)*len(self.state)).reshape((self.state.shape))
+      p_vals = (1 - self.alpha) * p_vals + self.alpha * dirichlet
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
@@ -91,7 +94,8 @@ class Edge():
     return
 
   def traverse(self, state, model):
-    self.initialize_node(state)
+    if self.node is None:
+      self.initialize_node(state)
 
     v =  self.node.find_leaf(model)
 
@@ -110,8 +114,6 @@ class MCTS():
     self.num_simulations = num_simulations # represents "thinking time"
 
   def search(self): # builds the search tree from the root node
-    self.root.expand(self.model, is_root=True)
-
     for i in range(self.num_simulations):
       self.root.find_leaf(self.model)
 

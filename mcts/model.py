@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 
 import torch
@@ -8,6 +9,9 @@ from torch.optim import AdamW
 
 from mcts import MCTS
 from environment import Environment
+
+torch.manual_seed(80085)
+np.random.seed(80085)
 
 def softXEnt (inp, target): # temporary
     logprobs = torch.nn.functional.log_softmax (inp, dim = 1)
@@ -135,12 +139,16 @@ class ZeroTTT():
     best_model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', board_len=self.board_len) # best model always generates data
     env = Environment(board_len=self.board_len)
 
+    t0 = time.time()
+
     for game_nr in range(n_games):
       
       mcts = MCTS(best_model, env.board, num_simulations=num_simulations)
       tau = 1.0
 
+      print(time.time() - t0)
       print(f"Game {game_nr+1}...")
+      t0 = time.time()
 
       while env.game_over() == 10:
 
