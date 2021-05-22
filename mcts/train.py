@@ -1,7 +1,7 @@
 from model import ZeroTTT
 
 # model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, board_len=10)
-model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-4, board_len=10)
+model = ZeroTTT(brain_path=None, opt_path=None, lr=0.02, board_len=10)
 
 # test = torch.randn((2, 10, 10))
 # p, v = model.predict(test)
@@ -18,14 +18,17 @@ model.self_play(n_games=1000, num_simulations=200, render=20, positions_per_lear
 '''
   Problems to investigate:
 
-1. No linear layers after pol_conv, maybe add some? Def add one because using relu then softmax (2 nonlins?)
 2. No randomness after 30 moves ?? Think about this
-3. Analyze search function for bugs and select_move
-4. swapping perspectives?
-
 5. We empty states after every learn, we need to update a buffer and don't delete only when exceeds some max length (deque like structure)
 
-
+7. No evaluation step : latest network is assumed to be best even if this is not the case
+'''
 
 '''
+  Keep eye on:
+
+1. Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE (could saturate)
+
+'''
+
 

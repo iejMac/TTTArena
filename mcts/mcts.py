@@ -154,7 +154,8 @@ class MCTS():
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
 
+    print(move_dist)
+
     if as_prob is True:
       move_dist = np_softmax(move_dist)
-
     return move_dist
