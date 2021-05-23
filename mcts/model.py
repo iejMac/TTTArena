@@ -107,9 +107,9 @@ class ZeroTTT():
 
   def load_brain(self, model_name, opt_state_name):
     print("Loading brain...")
-    self.brain.load_state_dict(torch.load(os.path.join('models', model_name)))
+    self.brain.load_state_dict(torch.load(os.path.join('models', model_name), map_location=self.device))
     if opt_state_name is not None:
-        self.optimizer.load_state_dict(torch.load(os.path.join('models', opt_state_name)))
+        self.optimizer.load_state_dict(torch.load(os.path.join('models', opt_state_name), map_location=self.device))
     return
 
   def predict(self, x):
