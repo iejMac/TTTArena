@@ -126,9 +126,6 @@ class ZeroTTT():
     
     # Put model in training mode:
     self.brain.train()
-
-    # TODO:
-    # - Implement proper sampling every couple of games rather than learning after each game
     
     states = []
     policy_labels = []
@@ -166,9 +163,8 @@ class ZeroTTT():
 
         if (game_nr+1) % render == 0:
           env.render()
-        
-      if (game_nr+1) % render == 0:
-        print(f"Player with token: {env.game_over()} won the game")
+
+      print(f"Player with token: {env.game_over()} won the game in {len(env.move_hist)} moves")
 
       if env.game_over() == env.x_token: # pass because the turns correctly specify the return from the proper perspectives
         pass
