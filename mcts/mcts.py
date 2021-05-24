@@ -7,10 +7,10 @@ from environment import split_state
 np.random.seed(80085)
 random.seed(80085)
 
-def ucb_score(child_prior, parent_visit_count, child_visit_count):
+def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   c_puct = 4
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
-  puct = c_puct * pb_c
+  puct = child_value + c_puct * pb_c
   return puct
 
 def np_softmax(arr_2d, dim=2):
@@ -52,12 +52,12 @@ class Node():
       for j, prior_prob in enumerate(row):
         if self.state[i][j] != 0: # zero out probabilities for unavailable moves
           p_vals[i][j] = 0.0
-    p_vals = p_vals / np.sum(p_vals) # re-normalize
+    if np.sum(p_vals) > 0.0:
+      p_vals = p_vals / np.sum(p_vals) # re-normalize
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
-        if prior_prob > 0.0: # only append non-zero probability moves
-          self.children.append(Edge(prior_prob, (i, j)))
+        self.children.append(Edge(prior_prob, (i, j)))
 
     # Quick experiment:
     random.shuffle(self.children)
@@ -73,9 +73,9 @@ class Node():
       return self.expand(model)
 
     # find child node that maximuzes Q + U
-    max_ind, max_val = 0, 0.0
+    max_ind, max_val = 0, PUCT_score(self.children[0].Q, self.children[0].P, self.visit_count, self.children[0].N)
     for i, child_node in enumerate(self.children):
-      val = child_node.Q + ucb_score(child_node.P, self.visit_count, child_node.N)
+      val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
       if val > max_val:
         max_ind = i
         max_val = val
@@ -131,9 +131,11 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
+
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
+
     return move_dist
 
   def select_move(self, tau=1.0, external_move=None):
