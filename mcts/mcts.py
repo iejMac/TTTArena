@@ -142,7 +142,6 @@ class MCTS():
       probas = self.get_pi(tau)
       selected_move = int(np.random.choice(len(probas.flatten()), 1, p=probas.flatten()))
       selected_move = np.unravel_index(selected_move, probas.shape)
-      print(selected_move)
     else:
       selected_move = external_move
 
