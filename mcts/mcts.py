@@ -26,27 +26,21 @@ def np_softmax(arr_2d, dim=2):
   return e_x
 
 class Node():
-  def __init__(self, state, dir_alpha=0.25):
+  def __init__(self, state):
     self.state = state
     self.children = []
     self.visit_count = 0
-    self.alpha = dir_alpha
 
   def is_leaf_node(self):
     return (len(self.children) == 0)
 
-  def expand(self, model, is_root=False):
+  def expand(self, model):
 
     if self.is_leaf_node() is False: # safety so a node doesn't double its children
       return
 
     p_vals, value = model.predict(split_state(self.state))
     p_vals = p_vals[0].cpu().detach().numpy()
-
-    # Add dirichlet noise if root state:
-    if is_root is True:
-      dirichlet = np.random.dirichlet([0.03]*len(self.state)*len(self.state)).reshape((self.state.shape))
-      p_vals = (1 - self.alpha) * p_vals + self.alpha * dirichlet
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
@@ -116,13 +110,26 @@ class Edge():
 
 
 class MCTS():
-  def __init__(self, model, root_state, num_simulations=1600):
+  def __init__(self, model, root_state, num_simulations=1600, alpha=0.25):
     self.model = model
     self.root = Node(root_state)
-    self.root.expand(self.model, is_root=True)
+    self.root.expand(self.model)
     self.num_simulations = num_simulations # represents "thinking time"
 
+    self.alpha = alpha
+
   def search(self): # builds the search tree from the root node
+
+    # Add dirichlet noise to root node:
+    dirichlet = np.random.dirichlet([0.3]*len(self.root.children))
+    for i, child in enumerate(self.root.children):
+      if self.root.state[child.action[0]][child.action[1]] == 0.0:
+        child.P = (1 - self.alpha)*child.P + dirichlet[i] * self.alpha
+
+    child_sum = sum([c.P for c in self.root.children]) # re-normalize
+    for child in self.root.children:
+      child.P /= child_sum
+
     for i in range(self.num_simulations):
       self.root.find_leaf(self.model)
     return
@@ -131,7 +138,7 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
-
+    print(move_dist)
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
