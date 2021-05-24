@@ -147,13 +147,13 @@ class ZeroTTT():
       while env.game_over() == 10:
 
         if len(env.move_hist) > 30: # after 30 moves no randomness
-          tau = 0.0
+          tau = 0.01
 
         if np.any(env.board == 0) is False: # tie
           break
 
         mcts.search()
-
+       
         if env.turn == env.x_token:
           append_state(states, policy_labels, env.board, mcts.get_pi())
         elif env.turn == env.o_token: # swap persepctive so O tokens are positive and X tokens are negative

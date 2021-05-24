@@ -8,10 +8,10 @@ np.random.seed(80085)
 random.seed(80085)
 
 def ucb_score(child_prior, parent_visit_count, child_visit_count):
-  # pb_c = math.log((parent_visit_count + 19652 + 1)/19652) + 1.25
-  pb_c = math.sqrt(parent_visit_count) / (child_visit_count + 1)
-  prior_score = pb_c * child_prior
-  return prior_score
+  c_puct = 4
+  pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
+  puct = c_puct * pb_c
+  return puct
 
 def np_softmax(arr_2d, dim=2):
 
@@ -50,13 +50,20 @@ class Node():
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
-        if self.state[i][j] == 0: # only append available moves
+        if self.state[i][j] != 0: # zero out probabilities for unavailable moves
+          p_vals[i][j] = 0.0
+    p_vals = p_vals / np.sum(p_vals) # re-normalize
+
+    for i, row in enumerate(p_vals):
+      for j, prior_prob in enumerate(row):
+        if prior_prob > 0.0: # only append non-zero probability moves
           self.children.append(Edge(prior_prob, (i, j)))
 
     # Quick experiment:
     random.shuffle(self.children)
 
-    return (-1.0)*value # negative value because this is evaluated from the position of the opposite player
+    # return (-1.0)*value # negative value because this is evaluated from the position of the opposite player
+    return value
 
   def find_leaf(self, model):
 
@@ -74,7 +81,8 @@ class Node():
         max_val = val
 
     v = self.children[int(max_ind)].traverse(self.state, model)
-    return (-1.0)*v
+    # return (-1.0)*v
+    return v
 
 class Edge():
   def __init__(self, p, action):
@@ -91,6 +99,7 @@ class Edge():
     next_state = np.copy(state)
     next_state[self.action[0]][self.action[1]] = 1
     self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
+    # self.node = Node(next_state)
     return
 
   def traverse(self, state, model):
@@ -118,27 +127,30 @@ class MCTS():
       self.root.find_leaf(self.model)
     return
 
-  def select_move(self, tau=0.0, external_move=None):
+  def get_pi(self, tau=1.0, as_prob=True):
+    move_dist = np.zeros((len(self.root.state), len(self.root.state)))
+    for child in self.root.children:
+      move_dist[child.action[0]][child.action[1]] = child.N
+    if as_prob is True:
+      move_dist = np.power(move_dist, 1.0/tau)
+      move_dist /= np.sum(move_dist)
+    return move_dist
+
+  def select_move(self, tau=1.0, external_move=None):
 
     if external_move is None:
-      probas = []
-      for i, child in enumerate(self.root.children):
-        probas.append(child.N)
-      
-      # probas = probas / np.sum(probas)
-      probas = np_softmax(np.array(probas), dim=1)
-
-      if tau == 0.0:
-        max_ind = np.argmax(probas)
-      else:
-        max_ind = int(np.random.choice(len(probas), 1, p=probas))
-
+      probas = self.get_pi(tau)
+      selected_move = int(np.random.choice(len(probas.flatten()), 1, p=probas.flatten()))
+      selected_move = np.unravel_index(selected_move, probas.shape)
+      print(selected_move)
     else:
-      max_ind = 0
-      for i, child in enumerate(self.root.children):
-        if child.action == external_move:
-          max_ind = i
-          break
+      selected_move = external_move
+
+    max_ind = 0
+    for i, child in enumerate(self.root.children):
+      if child.action == selected_move:
+        max_ind = i
+        break
 
     # need to update the search tree 
     chosen = self.root.children[max_ind]
@@ -146,14 +158,3 @@ class MCTS():
       chosen.initialize_node(self.root.state)
     self.root = chosen.node
     return chosen.action
-
-  def get_pi(self, tau=1.0, as_prob=True):
-    # Currently doesnt even use Tau but tau is used for this in the paper
-    move_dist = np.zeros((len(self.root.state), len(self.root.state)))
-
-    for child in self.root.children:
-      move_dist[child.action[0]][child.action[1]] = child.N
-
-    if as_prob is True:
-      move_dist = np_softmax(move_dist)
-    return move_dist
