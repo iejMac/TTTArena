@@ -1,7 +1,10 @@
 from model import ZeroTTT
 
-model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, board_len=10)
-# model = ZeroTTT(brain_path=None, opt_path=None, lr=0.02, board_len=10)
+# model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, board_len=10)
+model = ZeroTTT(brain_path=None, opt_path=None, lr=0.02, board_len=10)
+print(model.get_parameter_count())
+
+quit()
 
 # test = torch.randn((2, 10, 10))
 # p, v = model.predict(test)
