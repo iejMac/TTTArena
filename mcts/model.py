@@ -37,13 +37,16 @@ class PolicyHead(nn.Module):
 
     self.board_shape = board_shape
 
-    self.pol_conv1 = nn.Conv2d(24, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.pol_conv2 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv1 = nn.Conv2d(24, 32, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv2 = nn.Conv2d(32, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv3 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
 
   def forward(self, x):
     p = self.pol_conv1(x)
     p = F.relu(p)
     p = self.pol_conv2(p)
+    p = F.relu(p)
+    p = self.pol_conv3(p)
 
     p = p.view(-1, self.board_shape[1]*self.board_shape[2])
     p = F.softmax(p, dim=1)
@@ -53,8 +56,10 @@ class PolicyHead(nn.Module):
 class ValueHead(nn.Module):
   def __init__(self, use_bias):
     super().__init__()
-    self.val_conv1 = nn.Conv2d(24, 1, kernel_size=3, stride=1, bias=use_bias)
-    self.val_linear1 = nn.Linear(64, 50)
+    self.val_conv1 = nn.Conv2d(24, 24, kernel_size=5, stride=1, bias=use_bias)
+    self.val_conv2 = nn.Conv2d(24, 2, kernel_size=5, stride=1, bias=use_bias)
+
+    self.val_linear1 = nn.Linear(72, 50)
     self.val_linear2 = nn.Linear(50, 1)
 
     self.flatten = nn.Flatten()
@@ -62,6 +67,9 @@ class ValueHead(nn.Module):
   def forward(self, x):
     v = self.val_conv1(x)
     v = F.relu(v)
+    v = self.val_conv2(x)
+    v = F.relu(v)
+
     v = self.flatten(v)
     v = self.val_linear1(v)
     v = F.relu(v)

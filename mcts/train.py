@@ -4,6 +4,8 @@ from model import ZeroTTT
 model = ZeroTTT(brain_path=None, opt_path=None, lr=0.02, board_len=10)
 print(model.get_parameter_count())
 
+print(sum(p.numel() for p in model.brain.policy_head.parameters() if p.requires_grad))
+print(sum(p.numel() for p in model.brain.value_head.parameters() if p.requires_grad))
 
 # test = torch.randn((2, 10, 10))
 # p, v = model.predict(test)
