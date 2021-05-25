@@ -31,6 +31,44 @@ def append_state(states, labels, state, label):
   label = label.T
   return
 
+class PolicyHead(nn.Module):
+  def __init__(self, board_shape, use_bias):
+    super().__init__()
+
+    self.board_shape = board_shape
+
+    self.pol_conv1 = nn.Conv2d(24, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv2 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+
+  def forward(self, x):
+    p = self.pol_conv1(x)
+    p = F.relu(p)
+    p = self.pol_conv2(p)
+
+    p = p.view(-1, self.board_shape[1]*self.board_shape[2])
+    p = F.softmax(p, dim=1)
+    p = p.view(-1, self.board_shape[1], self.board_shape[2])
+    return p
+
+class ValueHead(nn.Module):
+  def __init__(self, use_bias):
+    super().__init__()
+    self.val_conv1 = nn.Conv2d(24, 1, kernel_size=3, stride=1, bias=use_bias)
+    self.val_linear1 = nn.Linear(64, 50)
+    self.val_linear2 = nn.Linear(50, 1)
+
+    self.flatten = nn.Flatten()
+
+  def forward(self, x):
+    v = self.val_conv1(x)
+    v = F.relu(v)
+    v = self.flatten(v)
+    v = self.val_linear1(v)
+    v = F.relu(v)
+    v = self.val_linear2(v)
+    v = torch.tanh(v)
+    return v
+
 class Brain(nn.Module):
   def __init__(self, input_shape=(2, 30, 30)):
     super().__init__()
@@ -43,14 +81,8 @@ class Brain(nn.Module):
     self.conv3 = nn.Conv2d(36, 48, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
     self.conv4 = nn.Conv2d(48, 24, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
 
-    self.pol_conv1 = nn.Conv2d(24, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.pol_conv2 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-
-    self.val_conv1 = nn.Conv2d(24, 1, kernel_size=3, stride=1, bias=use_bias)
-    self.val_linear1 = nn.Linear(64, 50)
-    self.val_linear2 = nn.Linear(50, 1)
-
-    self.flatten = nn.Flatten()
+    self.policy_head = PolicyHead(input_shape, use_bias)
+    self.value_head = ValueHead(use_bias)
 
   def forward(self, x):
     # Core:
@@ -63,23 +95,7 @@ class Brain(nn.Module):
     x = self.conv4(x)
     x = F.relu(x)
 
-    # Policy Head:
-    p = self.pol_conv1(x)
-    p = F.relu(p)
-    p = self.pol_conv2(p)
-
-    p = p.view(-1, self.input_shape[1]*self.input_shape[2])
-    p = F.softmax(p, dim=1)
-    p = p.view(-1, self.input_shape[1], self.input_shape[2])
-
-    # Value Head:
-    v = self.val_conv1(x)
-    v = F.relu(v)
-    v = self.flatten(v)
-    v = self.val_linear1(v)
-    v = F.relu(v)
-    v = self.val_linear2(v)
-    v = torch.tanh(v)
+    p, v = self.policy_head(x), self.value_head(x)
 
     return p, v
 
