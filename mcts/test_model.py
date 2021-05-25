@@ -24,6 +24,7 @@ p, v = model.predict(split_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()
+print(np.around(p, 3))
 print(v)
 
 env.reset()
@@ -44,6 +45,7 @@ p, v = model.predict(split_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()
+print(np.around(p, 3))
 print(v)
 
 env.reset()
@@ -62,6 +64,25 @@ p, v = model.predict(split_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()
+print(np.around(p, 3))
 print(v)
 
 env.reset()
+
+# Position 4
+env.step((0, 0))
+env.step((6, 5))
+env.step((0, 1))
+env.step((8, 4))
+env.step((0, 2))
+env.step((5, 9))
+env.step((0, 3))
+env.step((5, 6))
+
+p, v = model.predict(split_state(env.board))
+p = p.detach().cpu().numpy()
+
+env.render()
+print(np.around(p, 3))
+print(v)
+

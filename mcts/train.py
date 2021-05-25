@@ -16,18 +16,17 @@ model.self_play(n_games=1000, num_simulations=200, render=1, positions_per_learn
 
 '''
   Bugs:
-1. Reset search tree or remove child nodes that are chosen!!! (or not?)
-2. Play around with UCB (def dont have this aspect right, re-read the papers)
-3. Is there really a need to flip the tokens on the board so that current player is always on top? (Probably makes it simpler but idk)
-4. Consider changing Node.children to a dict from action to Edge
-5. If you're traversing into a node that has no open tiles just return the value (no need to go in the node)
+- If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)
+'''
+
+'''
+  Improvements:
+- Consider changing Node.children to a dict from action to Edge
 '''
 
 '''
   Keep eye on:
-
-1. Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE (could saturate)
-
+- Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE (could saturate)
 '''
 
 

@@ -136,7 +136,7 @@ class ZeroTTT():
 
     for game_nr in range(n_games):
       
-      mcts = MCTS(self, env.board, num_simulations=num_simulations)
+      mcts = MCTS(self, env.board, num_simulations=num_simulations, alpha=0.25)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
