@@ -119,17 +119,6 @@ class MCTS():
     self.alpha = alpha
 
   def search(self): # builds the search tree from the root node
-
-    # Add dirichlet noise to root node:
-    dirichlet = np.random.dirichlet([0.3]*len(self.root.children))
-    for i, child in enumerate(self.root.children):
-      if self.root.state[child.action[0]][child.action[1]] == 0.0:
-        child.P = (1 - self.alpha)*child.P + dirichlet[i] * self.alpha
-
-    child_sum = sum([c.P for c in self.root.children]) # re-normalize
-    for child in self.root.children:
-      child.P /= child_sum
-
     for i in range(self.num_simulations):
       self.root.find_leaf(self.model)
     return
@@ -138,7 +127,6 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
-    print(move_dist)
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
@@ -165,4 +153,15 @@ class MCTS():
     if chosen.node == None:
       chosen.initialize_node(self.root.state)
     self.root = chosen.node
+
+    # Add dirichlet noise to new root node:
+    dirichlet = np.random.dirichlet([0.3]*len(self.root.children))
+    for i, child in enumerate(self.root.children):
+      if self.root.state[child.action[0]][child.action[1]] == 0.0:
+        child.P = (1 - self.alpha)*child.P + dirichlet[i] * self.alpha
+
+    child_sum = sum([c.P for c in self.root.children]) # re-normalize because we don't add dirichlet to all children
+    for child in self.root.children:
+      child.P /= child_sum
+
     return chosen.action
