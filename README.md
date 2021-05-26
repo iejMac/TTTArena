@@ -5,8 +5,6 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that min
 1. In order to win one must place 5 consecutive tokens on the board (instead of 3)
 2. The board can be any shape given by mxn where m, n > 5 (usually m == n > 10, the better you are the more space you need)
 
-[picture of win]
-
 ## Rules 📄:
 1. Player with the X token always starts the game.
 2. Players alternate taking moves until a terminal state is encountered.
@@ -15,8 +13,8 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that min
 - there are no more empty positions and no player has won the game in which case it is a tie
 
 ## Contributions 👥: 
-Any form of contributions in the form of pull requests are encouraged. Some ideas:
+Any form of contributions in the form of pull requests are encouraged. Here are some ideas:
 - Your own approach/solution as a sub-repository. I'd love to be able to put different algorithms against themselves to see which one is best,
 - Optimizations and refactors of existing approaches,
-- Visualizations tools (something like behavioral_cloning/GUI.py but better), 
-- Data in the same format I have posted
+- Visualization tools (something like behavioral_cloning/GUI.py but better), 
+- Game data in the same format I have posted
