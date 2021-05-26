@@ -1,27 +1,22 @@
-# AlphaTTT
-AI for enhanced Tic-Tac-Toe
+# Tic-Tac-Toe 5 ❌🅾️
+This game is variation of Tic-Tac-Toe that just adds some complexity so that minimax with alpha-beta pruning is intractable and some form of intuition definately helps. There is also strategy, opening theory, and many intersting tactics I hope a self-play algorithm will be able to discover and maybe even teach me. It's simple enough to understand right away but not too simple where it gets boring in 2 game.
 
-### ZeroTTT.ipynb
-Second approach to the problem without utilizing any human knowledge, just self-play.
+## Differences from classic Tic-Tac-Toe:
+1. In order to win one must place 5 consecutive tokens on the board (instead of 3)
+2. The board can be any shape given by mxn where m, n > 5 (usually m == n > 10, the better you are the more space you need)
 
-### gym.py
-Trains the policy network using the REINFORCE algorithm.
+[picture of win]
 
-### environment.py
-Environment class, used to control the MDP.
+## Rules 📄:
+1. Player with the X token always starts the game.
+2. Players alternate taking moves until a terminal state is encountered.
+3. A terminal state is a state in which:
+- there are 5 consecutive tokens vertically, horizontally, or diagonally in which case the player whose token it is wins,
+- there are no more empty positions and no player has won the game in which case it is a tie
 
-### game_mechanics.py
-Functions that help with board manipulation: 
-- board creation
-- making moves
-- checking if game is over
-etc.
-
-### model_new.py
-Model class, creates the network, trains it, evaluates it, and predicts actions.
-
-### GUI.py
-Interface for viewing games, playing games PvP (policy data generation), and playing games PvAI (model evaluation)
-
-### data_functions.py
-Functions that manipulate, augment, or load data.
+## Contributions 👥: 
+Any form of contributions in the form of pull requests are encouraged. Some ideas:
+- Your own approach/solution as a sub-repository. I'd love to be able to put different algorithms against themselves to see which one is best,
+- Optimizations and refactors of existing approaches,
+- Visualizations tools (something like behavioral_cloning/GUI.py but better), 
+- Data in the same format I have posted
