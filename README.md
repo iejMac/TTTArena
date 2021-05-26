@@ -13,7 +13,7 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that min
 - there are no more empty positions and no player has won the game in which case it is a tie
 
 ## Contributions 👥: 
-Any form of contributions in the form of pull requests are encouraged. Here are some ideas:
+Any form of contribution in the form of pull requests are encouraged. Here are some ideas:
 - Your own approach/solution as a sub-repository. I'd love to be able to put different algorithms against themselves to see which one is best,
 - Optimizations and refactors of existing approaches,
 - Visualization tools (something like behavioral_cloning/GUI.py but better), 
