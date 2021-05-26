@@ -1,7 +1,7 @@
 # AlphaTTT 🧠: 
 This appraoch implements the AlphaZero algorithm for this game. ([Link to Paper](https://arxiv.org/abs/1712.01815))
 
-## Results:
+## Results 📊:
 
 ## Files 📁:
 1. model.py - Model class along with self-play algorithm and data gathering,
