@@ -13,7 +13,7 @@ quit()
 # p, v = model.predict(test)
 # print(v.shape)
 
-model.self_play(n_games=1000, num_simulations=200, render=1, positions_per_learn=100000, batch_size=40)
+model.self_play(n_games=1000, num_simulations=200, render=1, training_epochs=1, min_positions_learn=300000, positions_per_learn=100000, batch_size=40)
 # model.self_play(n_games=1000, num_simulations=10, render=1, positions_per_learn=800, batch_size=40,
             # games_per_evaluation=50, evaluation_game_count=20, evaluation_num_simulations=10)
 
