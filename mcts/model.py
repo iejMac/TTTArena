@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from collections import deque
 
 import torch
 from torch import nn
@@ -122,15 +123,17 @@ class ZeroTTT():
     policy, value = self.brain(x)
     return policy, value
 
-  def self_play(self, n_games=1, num_simulations=100, positions_per_learn=100, batch_size=20 ,render=10):
+  def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, min_positions_learn=100, batch_size=20 ,render=10):
     
     # Put model in training mode:
     self.brain.train()
     
-    states = []
-    policy_labels = []
-    value_labels = []
+    states = deque([], maxlen=min_positions_learn)
+    policy_labels = deque([], maxlen=min_positions_learn)
+    value_labels = deque([], maxlen=min_positions_learn)
     val_chunk = []
+
+    positions_to_next_learn = positions_per_learn
 
     env = Environment(board_len=self.board_len)
 
@@ -174,10 +177,11 @@ class ZeroTTT():
         val_chunk = [0 for lab in val_chunk]
 
       value_labels += val_chunk
+      positions_to_next_learn -= len(val_chunk)
       val_chunk = []
 
 
-      if len(states) >= positions_per_learn: # learn
+      if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
 
         print(f"Training on {len(states)} positions...")
 
@@ -197,34 +201,33 @@ class ZeroTTT():
         if len(states) / batch_size > batch_count:
           batch_count += 1
 
-        for j in range(batch_count):
+        for e in range(training_epochs):
+          for j in range(batch_count):
 
-          self.optimizer.zero_grad()
+            self.optimizer.zero_grad()
 
-          batch_st = states[j * batch_size: min((j+1) * batch_size, len(states))]
-          batch_pl = policy_labels[j * batch_size: min((j+1) * batch_size, len(policy_labels))]
-          batch_vl = value_labels[j * batch_size: min((j+1) * batch_size, len(value_labels))]
+            batch_st = states[j * batch_size: min((j+1) * batch_size, len(states))]
+            batch_pl = policy_labels[j * batch_size: min((j+1) * batch_size, len(policy_labels))]
+            batch_vl = value_labels[j * batch_size: min((j+1) * batch_size, len(value_labels))]
 
-          batch_pl = torch.from_numpy(batch_pl).to(self.device)
-          batch_vl = torch.from_numpy(batch_vl).float().to(self.device)
-          prob, val = self.predict(batch_st)
-          val = val.flatten()
+            batch_pl = torch.from_numpy(batch_pl).to(self.device)
+            batch_vl = torch.from_numpy(batch_vl).float().to(self.device)
+            prob, val = self.predict(batch_st)
+            val = val.flatten()
+    
+            prob = torch.flatten(prob, 1, 2)
+            batch_pl = torch.flatten(batch_pl, 1, 2)
+    
+            p_loss = softXEnt(prob, batch_pl)
+            v_loss = self.value_loss(val, batch_vl)
+    
+            loss = p_loss + v_loss
+            loss.backward()
+    
+            self.optimizer.step()
   
-          prob = torch.flatten(prob, 1, 2)
-          batch_pl = torch.flatten(batch_pl, 1, 2)
-  
-          p_loss = softXEnt(prob, batch_pl)
-          v_loss = self.value_loss(val, batch_vl)
-  
-          loss = p_loss + v_loss
-          loss.backward()
-  
-          self.optimizer.step()
-  
-        states = []
-        policy_labels = []
-        value_labels = []
         # Save after training step
         self.save_brain('best_model', 'best_opt_state')
 
       env.reset()
+      positions_to_next_learn = positions_per_learn
