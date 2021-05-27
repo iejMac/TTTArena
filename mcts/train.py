@@ -7,6 +7,8 @@ print(model.get_parameter_count())
 print(sum(p.numel() for p in model.brain.policy_head.parameters() if p.requires_grad))
 print(sum(p.numel() for p in model.brain.value_head.parameters() if p.requires_grad))
 
+quit()
+
 # test = torch.randn((2, 10, 10))
 # p, v = model.predict(test)
 # print(v.shape)
