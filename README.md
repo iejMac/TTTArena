@@ -1,5 +1,5 @@
 # Tic-Tac-Toe 5 ❌🅾️
-This game is variation of Tic-Tac-Toe that just adds some complexity so that minimax with alpha-beta pruning is intractable and some form of intuition definately helps. There is also strategy, opening theory, and many intersting tactics I hope a self-play algorithm will be able to discover and maybe even teach me. It's simple enough to understand right away but not too simple where it gets boring in 2 game.
+This game is variation of Tic-Tac-Toe that just adds some complexity so that searching over all games is intractable and some form of intuition definately helps. There is also strategy, opening theory, and many intersting tactics I hope a self-play algorithm will be able to discover and maybe even teach me. It's simple enough to understand right away but not too simple where it gets boring in 2 game.
 
 ## Differences from classic Tic-Tac-Toe:
 1. In order to win one must place 5 consecutive tokens on the board (instead of 3)
