@@ -162,17 +162,19 @@ class ZeroTTT():
 
     env = Environment(board_len=self.board_len)
 
+    tau_0 = 1.75
+
     for game_nr in range(n_games):
       
       mcts = MCTS(self, env.board, num_simulations=num_simulations, alpha=0.25)
-      tau = 1.0
+      tau = tau_0**((n_games-game_nr)/(n_games))
 
       print(f"Game {game_nr+1}...")
 
       while env.game_over() == 10:
 
-        if len(env.move_hist) > 30: # after 30 moves no randomness
-          tau = 0.01
+        # if len(env.move_hist) > 30: # after 30 moves no randomness
+        #   tau = 0.01
 
         if np.any(env.board == 0) is False: # tie
           break
@@ -180,9 +182,9 @@ class ZeroTTT():
         mcts.search()
        
         if env.turn == env.x_token:
-          append_state(states, policy_labels, env.board, mcts.get_pi())
+          append_state(states, policy_labels, env.board, mcts.get_pi(tau=tau))
         elif env.turn == env.o_token: # swap persepctive so O tokens are positive and X tokens are negative
-          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi())
+          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi(tau=tau))
 
         val_chunk += [env.turn]*8 # accounting for augmentation
 
