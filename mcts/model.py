@@ -15,8 +15,9 @@ torch.manual_seed(80085)
 np.random.seed(80085)
 
 def softXEnt (inp, target): # temporary
-    logprobs = F.log_softmax (inp, dim = 1)
-    return  -(target * logprobs).sum() / inp.shape[0]
+  logprobs = torch.log(inp)
+  cross_entropy = (target * logprobs).sum() * (-1.0) / inp.shape[0]
+  return cross_entropy
 
 def append_state(states, labels, state, label):
   # Augmentation
@@ -116,7 +117,7 @@ class ZeroTTT():
 
     self.optimizer = AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
     self.value_loss = nn.MSELoss()
-    self.policy_loss = nn.CrossEntropyLoss()
+    self.policy_loss = softXEnt
 
     if brain_path is not None:
       self.load_brain(brain_path, opt_path)
@@ -241,8 +242,8 @@ class ZeroTTT():
     
             prob = torch.flatten(prob, 1, 2)
             batch_pl = torch.flatten(batch_pl, 1, 2)
-    
-            p_loss = softXEnt(prob, batch_pl)
+
+            p_loss = self.policy_loss(prob, batch_pl)
             v_loss = self.value_loss(val, batch_vl)
     
             loss = p_loss + v_loss
