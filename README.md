@@ -10,7 +10,7 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that sea
 4. The board can be any shape given by mxn where m, n > 5 (usually m == n > 10, the better you are the more space you need)
 
 ## Data:
-In "./data" there is a collection of games played by humans in the format of alterating move coordinates
+In "./data" there is a collection of games played by humans in the format of alterating move coordinates.
 
 ## Contributions 👥: 
 Any form of contribution in the form of pull requests are encouraged. Here are some ideas:
