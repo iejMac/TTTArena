@@ -185,20 +185,20 @@ class ZeroTTT():
 
         print(f"Training on {len(states)} positions...")
 
-        states = [split_state(state) for state in states]
+        train_states = [split_state(state) for state in states]
 
-        states = np.array(states)
-        policy_labels = np.array(policy_labels)
-        value_labels = np.array(value_labels)
+        train_states = np.array(train_states)
+        train_policy_labels = np.array(policy_labels)
+        train_value_labels = np.array(value_labels)
 
         p = np.random.permutation(len(states))
 
-        states = states[p]
-        policy_labels = policy_labels[p]
-        value_labels = value_labels[p]
+        train_states = train_states[p]
+        train_policy_labels = train_policy_labels[p]
+        train_value_labels = train_value_labels[p]
 
-        batch_count = int(len(states)/batch_size)
-        if len(states) / batch_size > batch_count:
+        batch_count = int(len(train_states)/batch_size)
+        if len(train_states) / batch_size > batch_count:
           batch_count += 1
 
         for e in range(training_epochs):
@@ -206,9 +206,9 @@ class ZeroTTT():
 
             self.optimizer.zero_grad()
 
-            batch_st = states[j * batch_size: min((j+1) * batch_size, len(states))]
-            batch_pl = policy_labels[j * batch_size: min((j+1) * batch_size, len(policy_labels))]
-            batch_vl = value_labels[j * batch_size: min((j+1) * batch_size, len(value_labels))]
+            batch_st = train_states[j * batch_size: min((j+1) * batch_size, len(train_states))]
+            batch_pl = train_policy_labels[j * batch_size: min((j+1) * batch_size, len(train_policy_labels))]
+            batch_vl = train_value_labels[j * batch_size: min((j+1) * batch_size, len(train_value_labels))]
 
             batch_pl = torch.from_numpy(batch_pl).to(self.device)
             batch_vl = torch.from_numpy(batch_vl).float().to(self.device)
@@ -228,6 +228,6 @@ class ZeroTTT():
   
         # Save after training step
         self.save_brain('best_model', 'best_opt_state')
+        positions_to_next_learn = positions_per_learn
 
       env.reset()
-      positions_to_next_learn = positions_per_learn
