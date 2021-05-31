@@ -9,8 +9,8 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that sea
   - there are no more empty positions and no player has won the game in which case it is a tie
 4. The board can be any shape given by mxn where m, n > 5 (usually m == n > 10, the better you are the more space you need)
 
-## Data ⌗::
-In "./data" there is a collection of games played by humans in the format of alterating move coordinates. Since X always starts this is a nice compact way to represent a complete game.
+## Data:
+In "./data" there is a collection of games played by humans in the format of alterating move coordinates
 
 ## Contributions 👥: 
 Any form of contribution in the form of pull requests are encouraged. Here are some ideas:
