@@ -14,6 +14,7 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   return puct
 
 def np_softmax(arr_2d, dim=2):
+
   if dim == 2:
     flat = arr_2d.flatten()
   elif dim == 1:
@@ -93,7 +94,6 @@ class Edge():
     next_state[self.action[0]][self.action[1]] = 1
     # self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
     self.node = Node(next_state)
-    print(next_state)
     return
 
   def traverse(self, state, model):

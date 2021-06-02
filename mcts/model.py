@@ -211,8 +211,8 @@ class ZeroTTT():
       '''
 
       # value_labels += val_chunk
-      value_labels += [game_result for _ in range(len(env.game_hist))]
-      positions_to_next_learn -= len(val_chunk)
+      value_labels += [game_result for _ in range(len(env.move_hist)*8)]
+      positions_to_next_learn -= len(env.move_hist)*8
       # val_chunk = []
 
 
