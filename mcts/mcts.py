@@ -14,7 +14,6 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   return puct
 
 def np_softmax(arr_2d, dim=2):
-
   if dim == 2:
     flat = arr_2d.flatten()
   elif dim == 1:

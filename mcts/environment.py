@@ -8,7 +8,6 @@ def split_state(state):
         split[0][i][j] = 1
       elif cell == -1:
         split[1][i][j] = 1
-
   return split
 
 class Environment():
