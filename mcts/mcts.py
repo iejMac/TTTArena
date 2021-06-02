@@ -130,7 +130,6 @@ class MCTS():
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
-    print(np.around(move_dist, 3))
     return move_dist
 
   def select_move(self, tau=1.0, external_move=None):

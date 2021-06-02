@@ -179,7 +179,7 @@ class ZeroTTT():
 
         mcts.search()
        
-        append_state(states, policy_labels, env.board, mcts.get_pi(tau=tau))
+        append_state(states, policy_labels, env.board, mcts.get_pi())
         '''
         if env.turn == env.x_token:
           append_state(states, policy_labels, env.board, mcts.get_pi(tau=tau))
