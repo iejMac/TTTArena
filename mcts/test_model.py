@@ -25,9 +25,18 @@ env.step((5, 0))
 env.step((5, 5))
 env.step((4, 5))
 env.step((4, 4))
-env.step((6, 3))
+env.step((3, 6))
+env.step((4, 6))
+env.step((3, 5))
+env.step((2, 6))
+env.step((3, 7))
+env.step((2, 7))
+
+env.step((3, 4))
+env.step((3, 3))
 
 
+# p, v = model.predict(split_state(env.board * -1))
 p, v = model.predict(split_state(env.board))
 p = p.detach().cpu().numpy()
 
