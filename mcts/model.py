@@ -182,9 +182,9 @@ class ZeroTTT():
         append_state(states, policy_labels, env.board, mcts.get_pi())
         '''
         if env.turn == env.x_token:
-          append_state(states, policy_labels, env.board, mcts.get_pi(tau=tau))
+          append_state(states, policy_labels, env.board, mcts.get_pi())
         elif env.turn == env.o_token: # swap persepctive so O tokens are positive and X tokens are negative
-          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi(tau=tau))
+          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi())
 
         val_chunk += [env.turn]*8 # accounting for augmentation
         '''
