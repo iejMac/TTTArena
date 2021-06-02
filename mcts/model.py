@@ -162,19 +162,17 @@ class ZeroTTT():
 
     env = Environment(board_len=self.board_len)
 
-    tau_0 = 1.75
-
     for game_nr in range(n_games):
       
       mcts = MCTS(self, env.board, num_simulations=num_simulations, alpha=0.25)
-      tau = tau_0**((n_games-game_nr)/(n_games))
+      tau = 1.0
 
       print(f"Game {game_nr+1}...")
 
       while env.game_over() == 10:
 
-        # if len(env.move_hist) > 30: # after 30 moves no randomness
-        #   tau = 0.01
+        if len(env.move_hist) > 30: # after 30 moves no randomness
+          tau = 0.01
 
         if np.any(env.board == 0) is False: # tie
           break
