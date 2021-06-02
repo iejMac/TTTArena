@@ -56,7 +56,8 @@ class Node():
     # Quick experiment:
     random.shuffle(self.children)
 
-    return (-1.0)*value # negative value because this is evaluated from the position of the opposite player
+    reverse_value = np.sum(self.state) == 0 # this means this state is after an O move
+    return ((-1.0)**reverse_value)*value # negative value because this is evaluated from the position of the opposite player
     # return value
 
   def find_leaf(self, model):
