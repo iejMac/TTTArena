@@ -15,8 +15,9 @@ torch.manual_seed(80085)
 np.random.seed(80085)
 
 def softXEnt (inp, target): # temporary
-    logprobs = F.log_softmax (inp, dim = 1)
-    return  -(target * logprobs).sum() / inp.shape[0]
+  logprobs = torch.log(inp)
+  cross_entropy = (target * logprobs).sum() * (-1.0) / inp.shape[0]
+  return cross_entropy
 
 def append_state(states, labels, state, label):
   # Augmentation
@@ -32,6 +33,52 @@ def append_state(states, labels, state, label):
   label = label.T
   return
 
+class PolicyHead(nn.Module):
+  def __init__(self, board_shape, use_bias):
+    super().__init__()
+
+    self.board_shape = board_shape
+
+    self.pol_conv1 = nn.Conv2d(48, 32, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv2 = nn.Conv2d(32, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv3 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+
+  def forward(self, x):
+    p = self.pol_conv1(x)
+    p = F.relu(p)
+    p = self.pol_conv2(p)
+    p = F.relu(p)
+    p = self.pol_conv3(p)
+
+    p = p.view(-1, self.board_shape[1]*self.board_shape[2])
+    p = F.softmax(p, dim=1)
+    p = p.view(-1, self.board_shape[1], self.board_shape[2])
+    return p
+
+class ValueHead(nn.Module):
+  def __init__(self, use_bias):
+    super().__init__()
+    self.val_conv1 = nn.Conv2d(48, 24, kernel_size=5, stride=1, bias=use_bias)
+    self.val_conv2 = nn.Conv2d(24, 4, kernel_size=3, stride=1, bias=use_bias)
+
+    self.val_linear1 = nn.Linear(64, 50)
+    self.val_linear2 = nn.Linear(50, 1)
+
+    self.flatten = nn.Flatten()
+
+  def forward(self, x):
+    v = self.val_conv1(x)
+    v = F.relu(v)
+    v = self.val_conv2(v)
+    v = F.relu(v)
+
+    v = self.flatten(v)
+    v = self.val_linear1(v)
+    v = F.relu(v)
+    v = self.val_linear2(v)
+    v = torch.tanh(v)
+    return v
+
 class Brain(nn.Module):
   def __init__(self, input_shape=(2, 30, 30)):
     super().__init__()
@@ -39,19 +86,13 @@ class Brain(nn.Module):
     self.input_shape = input_shape
 
     use_bias = True
-    self.conv1 = nn.Conv2d(input_shape[0], 24, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.conv2 = nn.Conv2d(24, 36, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.conv3 = nn.Conv2d(36, 48, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.conv4 = nn.Conv2d(48, 24, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.conv1 = nn.Conv2d(input_shape[0], 64, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.conv2 = nn.Conv2d(64, 96, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.conv3 = nn.Conv2d(96, 96, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.conv4 = nn.Conv2d(96, 48, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
 
-    self.pol_conv1 = nn.Conv2d(24, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.pol_conv2 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-
-    self.val_conv1 = nn.Conv2d(24, 1, kernel_size=3, stride=1, bias=use_bias)
-    self.val_linear1 = nn.Linear(64, 50)
-    self.val_linear2 = nn.Linear(50, 1)
-
-    self.flatten = nn.Flatten()
+    self.policy_head = PolicyHead(input_shape, use_bias)
+    self.value_head = ValueHead(use_bias)
 
   def forward(self, x):
     # Core:
@@ -64,23 +105,7 @@ class Brain(nn.Module):
     x = self.conv4(x)
     x = F.relu(x)
 
-    # Policy Head:
-    p = self.pol_conv1(x)
-    p = F.relu(p)
-    p = self.pol_conv2(p)
-
-    p = p.view(-1, self.input_shape[1]*self.input_shape[2])
-    p = F.softmax(p, dim=1)
-    p = p.view(-1, self.input_shape[1], self.input_shape[2])
-
-    # Value Head:
-    v = self.val_conv1(x)
-    v = F.relu(v)
-    v = self.flatten(v)
-    v = self.val_linear1(v)
-    v = F.relu(v)
-    v = self.val_linear2(v)
-    v = torch.tanh(v)
+    p, v = self.policy_head(x), self.value_head(x)
 
     return p, v
 
@@ -92,7 +117,7 @@ class ZeroTTT():
 
     self.optimizer = AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
     self.value_loss = nn.MSELoss()
-    self.policy_loss = nn.CrossEntropyLoss()
+    self.policy_loss = softXEnt
 
     if brain_path is not None:
       self.load_brain(brain_path, opt_path)
@@ -131,35 +156,40 @@ class ZeroTTT():
     states = deque([], maxlen=min_positions_learn)
     policy_labels = deque([], maxlen=min_positions_learn)
     value_labels = deque([], maxlen=min_positions_learn)
-    val_chunk = []
+    # val_chunk = []
 
     positions_to_next_learn = positions_per_learn
 
     env = Environment(board_len=self.board_len)
 
+    tau_0 = 1.75
+
     for game_nr in range(n_games):
       
       mcts = MCTS(self, env.board, num_simulations=num_simulations, alpha=0.25)
-      tau = 1.0
+      tau = tau_0**((n_games-game_nr)/(n_games))
 
       print(f"Game {game_nr+1}...")
 
       while env.game_over() == 10:
 
-        if len(env.move_hist) > 30: # after 30 moves no randomness
-          tau = 0.01
+        # if len(env.move_hist) > 30: # after 30 moves no randomness
+        #   tau = 0.01
 
         if np.any(env.board == 0) is False: # tie
           break
 
         mcts.search()
        
+        append_state(states, policy_labels, env.board, mcts.get_pi(tau=tau))
+        '''
         if env.turn == env.x_token:
-          append_state(states, policy_labels, env.board, mcts.get_pi())
+          append_state(states, policy_labels, env.board, mcts.get_pi(tau=tau))
         elif env.turn == env.o_token: # swap persepctive so O tokens are positive and X tokens are negative
-          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi())
+          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi(tau=tau))
 
         val_chunk += [env.turn]*8 # accounting for augmentation
+        '''
 
         move = mcts.select_move(tau=tau)
         env.step(move)
@@ -167,18 +197,23 @@ class ZeroTTT():
         if (game_nr+1) % render == 0:
           env.render()
 
-      print(f"Player with token: {env.game_over()} won the game in {len(env.move_hist)} moves")
 
+      game_result = env.game_over()
+      print(f"Player with token: {game_result} won the game in {len(env.move_hist)} moves")
+
+      '''
       if env.game_over() == env.x_token: # pass because the turns correctly specify the return from the proper perspectives
         pass
       elif env.game_over() == env.o_token:
         val_chunk = [lab * (-1.0) for lab in val_chunk] # invert the turns because that will represent -1 return for x turns and 1 for o turns
       else: # tie
         val_chunk = [0 for lab in val_chunk]
+      '''
 
-      value_labels += val_chunk
+      # value_labels += val_chunk
+      value_labels += [game_result for _ in range(len(env.game_hist))]
       positions_to_next_learn -= len(val_chunk)
-      val_chunk = []
+      # val_chunk = []
 
 
       if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
@@ -217,8 +252,8 @@ class ZeroTTT():
     
             prob = torch.flatten(prob, 1, 2)
             batch_pl = torch.flatten(batch_pl, 1, 2)
-    
-            p_loss = softXEnt(prob, batch_pl)
+
+            p_loss = self.policy_loss(prob, batch_pl)
             v_loss = self.value_loss(val, batch_vl)
     
             loss = p_loss + v_loss

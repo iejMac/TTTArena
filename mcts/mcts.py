@@ -56,8 +56,8 @@ class Node():
     # Quick experiment:
     random.shuffle(self.children)
 
-    # return (-1.0)*value # negative value because this is evaluated from the position of the opposite player
-    return value
+    return (-1.0)*value # negative value because this is evaluated from the position of the opposite player
+    # return value
 
   def find_leaf(self, model):
 
@@ -75,8 +75,8 @@ class Node():
         max_val = val
 
     v = self.children[int(max_ind)].traverse(self.state, model)
-    # return (-1.0)*v
-    return v
+    return (-1.0)*v
+    # return v
 
 class Edge():
   def __init__(self, p, action):
@@ -92,8 +92,9 @@ class Edge():
   def initialize_node(self, state): # destination node doesn't need to be initialized all the time, only if we're actually going to use it
     next_state = np.copy(state)
     next_state[self.action[0]][self.action[1]] = 1
-    self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
-    # self.node = Node(next_state)
+    # self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
+    self.node = Node(next_state)
+    print(next_state)
     return
 
   def traverse(self, state, model):
@@ -127,7 +128,6 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
-    print(move_dist)
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
