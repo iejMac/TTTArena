@@ -11,6 +11,7 @@ model.brain.eval()
 env = Environment(board_len=10)
 
 # Position 1
+'''
 env.step((5, 5))
 env.step((0, 1))
 env.step((5, 4))
@@ -19,6 +20,13 @@ env.step((5, 6))
 env.step((0, 5))
 env.step((5, 3))
 env.step((5, 0))
+'''
+
+env.step((5, 5))
+env.step((4, 5))
+env.step((4, 4))
+env.step((6, 3))
+
 
 p, v = model.predict(split_state(env.board))
 p = p.detach().cpu().numpy()
@@ -29,6 +37,7 @@ print(v)
 
 env.reset()
 
+'''
 # Position 2
 env.step((0, 0))
 env.step((5, 5))
@@ -85,4 +94,4 @@ p = p.detach().cpu().numpy()
 env.render()
 print(np.around(p, 3))
 print(v)
-
+'''
