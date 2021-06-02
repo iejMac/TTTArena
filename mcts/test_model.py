@@ -46,7 +46,6 @@ print(v)
 
 env.reset()
 
-'''
 # Position 2
 env.step((0, 0))
 env.step((5, 5))
@@ -103,4 +102,3 @@ p = p.detach().cpu().numpy()
 env.render()
 print(np.around(p, 3))
 print(v)
-'''
