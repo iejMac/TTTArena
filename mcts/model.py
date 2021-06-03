@@ -21,6 +21,9 @@ def softXEnt (inp, target): # temporary
 
 def append_state(states, labels, state, label):
   # Augmentation
+  print(state)
+  print(np.around(label,3))
+
   for i in range(2):
     for j in range(4):
       states.append(np.rot90(state, j))
@@ -179,7 +182,12 @@ class ZeroTTT():
 
         mcts.search()
        
-        append_state(states, policy_labels, env.board, mcts.get_pi())
+        # append_state(states, policy_labels, env.board, mcts.get_pi())
+
+        print(env.board)
+        print(np.around(mcts.get_pi(), 3))
+        states.append(env.board)
+        policy_labels.append(mcts.get_pi())
         '''
         if env.turn == env.x_token:
           append_state(states, policy_labels, env.board, mcts.get_pi())
@@ -219,6 +227,10 @@ class ZeroTTT():
         print(f"Training on {len(states)} positions...")
 
         train_states = [split_state(state) for state in states]
+
+        for i in range(10):
+          print(states[i])
+          print(np.around(policy_labels[i], 4))
 
         train_states = np.array(train_states)
         train_policy_labels = np.array(policy_labels)

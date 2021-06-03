@@ -67,10 +67,17 @@ class Node():
     if self.is_leaf_node():
       return self.expand(model)
 
+    for i, child_node in enumerate(self.children):
+      # TODO: check if this if is necessary (numerically it isn't)
+      if child_node.P > 0.0:
+        max_ind, max_val = i, PUCT_score(self.children[i].Q, self.children[i].P, self.visit_count, self.children[i].N)
+        break
+
     # find child node that maximuzes Q + U
-    max_ind, max_val = 0, PUCT_score(self.children[0].Q, self.children[0].P, self.visit_count, self.children[0].N)
     for i, child_node in enumerate(self.children):
       val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
+      if self.state[child_node.action[0]][child_node.action[1]] != 0:
+        val = -np.inf
       if val > max_val:
         max_ind = i
         max_val = val
@@ -92,7 +99,8 @@ class Edge():
 
   def initialize_node(self, state): # destination node doesn't need to be initialized all the time, only if we're actually going to use it
     next_state = np.copy(state)
-    next_state[self.action[0]][self.action[1]] = 1
+    turn = (-1)**(np.sum(next_state) > 0)
+    next_state[self.action[0]][self.action[1]] = turn
     # self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
     self.node = Node(next_state)
     return
@@ -128,6 +136,11 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
+    
+    # print(self.root.state)
+    # print(np.sum(self.root.state))
+    # print(move_dist)
+
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
