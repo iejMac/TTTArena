@@ -184,8 +184,10 @@ class ZeroTTT():
        
         # append_state(states, policy_labels, env.board, mcts.get_pi())
 
-        print(env.board)
-        print(np.around(mcts.get_pi(), 3))
+        unavailable = env.board != 0
+        nonzero = np.around(mcts.get_pi(), 3) != 0.0
+        bad = unavailable*nonzero
+
         states.append(env.board)
         policy_labels.append(mcts.get_pi())
         '''
@@ -229,8 +231,10 @@ class ZeroTTT():
         train_states = [split_state(state) for state in states]
 
         for i in range(10):
-          print(states[i])
-          print(np.around(policy_labels[i], 4))
+          unavailable = states != 0
+          non_zero = np.around(policy_labels[i], 3) != 0
+          bad = unavailable * non_zero
+          print(np.any(bad))
 
         train_states = np.array(train_states)
         train_policy_labels = np.array(policy_labels)

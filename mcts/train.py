@@ -8,21 +8,11 @@ print(sum(p.numel() for p in model.brain.policy_head.parameters() if p.requires_
 print(sum(p.numel() for p in model.brain.value_head.parameters() if p.requires_grad))
 
 # model.self_play(n_games=1000, num_simulations=200, render=1, training_epochs=1, min_positions_learn=300000, positions_per_learn=100000, batch_size=40)
-# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=300, positions_per_learn=100, batch_size=1)
-model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=40, positions_per_learn=10, batch_size=1)
+model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=300, positions_per_learn=100, batch_size=1)
 
 '''
   Bugs:
 - If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)
-
-Policy Bug Observations:
-1. states are for some reason negative (-0 present)
-2. labels have non zero probability for moves that are taken
-3. after some training session almost all probs are 0.01 
-4. We initialize node by placing the X token always (doesn't work for new approach)
-
-
-
 '''
 
 '''
