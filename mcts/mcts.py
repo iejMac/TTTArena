@@ -51,7 +51,8 @@ class Node():
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
-        self.children.append(Edge(prior_prob, (i, j)))
+        if self.state[i][j] == 0:
+          self.children.append(Edge(prior_prob, (i, j)))
 
     # Quick experiment:
     random.shuffle(self.children)
@@ -67,17 +68,13 @@ class Node():
     if self.is_leaf_node():
       return self.expand(model)
 
-    for i, child_node in enumerate(self.children):
-      # TODO: check if this if is necessary (numerically it isn't)
-      if child_node.P > 0.0:
-        max_ind, max_val = i, PUCT_score(self.children[i].Q, self.children[i].P, self.visit_count, self.children[i].N)
-        break
-
     # find child node that maximuzes Q + U
+    max_ind, max_val = 0, PUCT_score(self.children[0].Q, self.children[0].P, self.visit_count, self.children[0].N)
     for i, child_node in enumerate(self.children):
-      val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
-      if self.state[child_node.action[0]][child_node.action[1]] != 0:
-        val = -np.inf
+      if self.state[child_node.action[0]][child_node.action[1]] == 0:
+        val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
+      else:
+        continue
       if val > max_val:
         max_ind = i
         max_val = val
