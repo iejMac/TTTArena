@@ -51,7 +51,7 @@ class Node():
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
         if self.state[i][j] == 0:
-        self.children.append(Edge(prior_prob, (i, j)))
+          self.children.append(Edge(prior_prob, (i, j)))
 
     # Quick experiment:
     random.shuffle(self.children)
