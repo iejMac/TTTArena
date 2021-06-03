@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from copy import deepcopy
 from collections import deque
 
 import torch
@@ -16,18 +17,15 @@ np.random.seed(80085)
 
 def softXEnt (inp, target): # temporary
   logprobs = torch.log(inp)
-  cross_entropy = (target * logprobs).sum() * (-1.0) / inp.shape[0]
+  cross_entropy = -(target * logprobs).sum() / inp.shape[0]
   return cross_entropy
 
 def append_state(states, labels, state, label):
   # Augmentation
-  print(state)
-  print(np.around(label,3))
-
   for i in range(2):
     for j in range(4):
-      states.append(np.rot90(state, j))
-      labels.append(np.rot90(label, j))
+      states.append(deepcopy(np.rot90(state, j)))
+      labels.append(deepcopy(np.rot90(label, j)))
     
     state = state.T
     label = label.T
@@ -174,22 +172,20 @@ class ZeroTTT():
 
       while env.game_over() == 10:
 
-        if len(env.move_hist) > 30: # after 30 moves no randomness
-          tau = 0.01
+        # if len(env.move_hist) > 30: # after 30 moves no randomness
+        #   tau = 0.01
 
         if np.any(env.board == 0) is False: # tie
           break
 
         mcts.search()
        
-        # append_state(states, policy_labels, env.board, mcts.get_pi())
+        append_state(states, policy_labels, env.board, mcts.get_pi())
 
-        unavailable = env.board != 0
-        nonzero = np.around(mcts.get_pi(), 3) != 0.0
-        bad = unavailable*nonzero
+        print(env.board)
+        print(np.around(mcts.get_pi(as_prob=False), 3))
+        print(env.turn)
 
-        states.append(env.board)
-        policy_labels.append(mcts.get_pi())
         '''
         if env.turn == env.x_token:
           append_state(states, policy_labels, env.board, mcts.get_pi())
@@ -230,11 +226,9 @@ class ZeroTTT():
 
         train_states = [split_state(state) for state in states]
 
-        for i in range(10):
-          unavailable = states != 0
-          non_zero = np.around(policy_labels[i], 3) != 0
-          bad = unavailable * non_zero
-          print(np.any(bad))
+        for i in range(len(states)):
+          print(states[i])
+          print(np.around(policy_labels[i], 3))
 
         train_states = np.array(train_states)
         train_policy_labels = np.array(policy_labels)
@@ -245,6 +239,8 @@ class ZeroTTT():
         train_states = train_states[p]
         train_policy_labels = train_policy_labels[p]
         train_value_labels = train_value_labels[p]
+
+        print(train_value_labels)
 
         batch_count = int(len(train_states)/batch_size)
         if len(train_states) / batch_size > batch_count:

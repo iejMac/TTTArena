@@ -1,6 +1,7 @@
 import math
 import random
 import numpy as np
+from copy import deepcopy
 
 from environment import split_state
 
@@ -95,7 +96,7 @@ class Edge():
     self.node = None
 
   def initialize_node(self, state): # destination node doesn't need to be initialized all the time, only if we're actually going to use it
-    next_state = np.copy(state)
+    next_state = deepcopy(state)
     turn = (-1)**(np.sum(next_state) > 0)
     next_state[self.action[0]][self.action[1]] = turn
     # self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
@@ -133,11 +134,6 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
-    
-    # print(self.root.state)
-    # print(np.sum(self.root.state))
-    # print(move_dist)
-
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
