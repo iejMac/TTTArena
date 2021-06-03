@@ -50,6 +50,7 @@ class Node():
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
+        if self.state[i][j] == 0:
         self.children.append(Edge(prior_prob, (i, j)))
 
     # Quick experiment:
@@ -68,7 +69,10 @@ class Node():
     # find child node that maximuzes Q + U
     max_ind, max_val = 0, PUCT_score(self.children[0].Q, self.children[0].P, self.visit_count, self.children[0].N)
     for i, child_node in enumerate(self.children):
-      val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
+      if self.state[child_node.action[0]][child_node.action[1]] == 0:
+        val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
+      else:
+        val = -np.inf
       if val > max_val:
         max_ind = i
         max_val = val
