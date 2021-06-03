@@ -72,7 +72,7 @@ class Node():
       if self.state[child_node.action[0]][child_node.action[1]] == 0:
         val = PUCT_score(child_node.Q, child_node.P, self.visit_count, child_node.N)
       else:
-        val = -np.inf
+        continue
       if val > max_val:
         max_ind = i
         max_val = val
