@@ -186,15 +186,6 @@ class ZeroTTT():
         print(np.around(mcts.get_pi(as_prob=False), 3))
         print(env.turn)
 
-        '''
-        if env.turn == env.x_token:
-          append_state(states, policy_labels, env.board, mcts.get_pi())
-        elif env.turn == env.o_token: # swap persepctive so O tokens are positive and X tokens are negative
-          append_state(states, policy_labels, (-1)*env.board, mcts.get_pi())
-
-        val_chunk += [env.turn]*8 # accounting for augmentation
-        '''
-
         move = mcts.select_move(tau=tau)
         env.step(move)
 
@@ -204,15 +195,6 @@ class ZeroTTT():
       append_state(states, policy_labels, env.board, mcts.get_pi()) # append terminal state
       game_result = env.game_over()
       print(f"Player with token: {game_result} won the game in {len(env.move_hist)} moves")
-
-      '''
-      if env.game_over() == env.x_token: # pass because the turns correctly specify the return from the proper perspectives
-        pass
-      elif env.game_over() == env.o_token:
-        val_chunk = [lab * (-1.0) for lab in val_chunk] # invert the turns because that will represent -1 return for x turns and 1 for o turns
-      else: # tie
-        val_chunk = [0 for lab in val_chunk]
-      '''
 
       # value_labels += val_chunk
       value_labels += [game_result for _ in range((len(env.move_hist) + 1)*8)]
