@@ -172,8 +172,8 @@ class ZeroTTT():
 
       while env.game_over() == 10:
 
-        # if len(env.move_hist) > 30: # after 30 moves no randomness
-        #   tau = 0.01
+        if len(env.move_hist) > 30: # after 30 moves no randomness
+          tau = 0.01
 
         if np.any(env.board == 0) is False: # tie
           break
@@ -201,7 +201,7 @@ class ZeroTTT():
         if (game_nr+1) % render == 0:
           env.render()
 
-
+      append_state(states, policy_labels, env.board, mcts.get_pi()) # append terminal state
       game_result = env.game_over()
       print(f"Player with token: {game_result} won the game in {len(env.move_hist)} moves")
 
@@ -215,20 +215,15 @@ class ZeroTTT():
       '''
 
       # value_labels += val_chunk
-      value_labels += [game_result for _ in range(len(env.move_hist)*8)]
-      positions_to_next_learn -= len(env.move_hist)*8
+      value_labels += [game_result for _ in range((len(env.move_hist) + 1)*8)]
+      positions_to_next_learn -= (len(env.move_hist)+1)*8
       # val_chunk = []
-
 
       if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
 
         print(f"Training on {len(states)} positions...")
 
         train_states = [split_state(state) for state in states]
-
-        for i in range(len(states)):
-          print(states[i])
-          print(np.around(policy_labels[i], 3))
 
         train_states = np.array(train_states)
         train_policy_labels = np.array(policy_labels)
