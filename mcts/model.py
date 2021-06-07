@@ -178,7 +178,6 @@ class ZeroTTT():
     states = deque([], maxlen=min_positions_learn)
     policy_labels = deque([], maxlen=min_positions_learn)
     value_labels = deque([], maxlen=min_positions_learn)
-    # val_chunk = []
 
     positions_to_next_learn = positions_per_learn
 
@@ -203,10 +202,6 @@ class ZeroTTT():
        
         append_state(states, policy_labels, env.board, mcts.get_pi())
 
-        print(env.board)
-        print(np.around(mcts.get_pi(as_prob=False), 3))
-        print(env.turn)
-
         move = mcts.select_move(tau=tau)
         env.step(move)
 
@@ -217,10 +212,8 @@ class ZeroTTT():
       game_result = env.game_over()
       print(f"Player with token: {game_result} won the game in {len(env.move_hist)} moves")
 
-      # value_labels += val_chunk
       value_labels += [game_result for _ in range((len(env.move_hist) + 1)*8)]
       positions_to_next_learn -= (len(env.move_hist)+1)*8
-      # val_chunk = []
 
       if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
 
@@ -237,8 +230,6 @@ class ZeroTTT():
         train_states = train_states[p]
         train_policy_labels = train_policy_labels[p]
         train_value_labels = train_value_labels[p]
-
-        print(train_value_labels)
 
         batch_count = int(len(train_states)/batch_size)
         if len(train_states) / batch_size > batch_count:
