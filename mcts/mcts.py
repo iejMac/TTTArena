@@ -14,18 +14,6 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   puct = child_value + c_puct * pb_c
   return puct
 
-def np_softmax(arr_2d, dim=2):
-
-  if dim == 2:
-    flat = arr_2d.flatten()
-  elif dim == 1:
-    flat = arr_2d
-
-  e_x = np.exp(flat - np.max(flat))
-  e_x = e_x / e_x.sum()
-  e_x = e_x.reshape(arr_2d.shape)
-  return e_x
-
 class Node():
   def __init__(self, state):
     self.state = state
