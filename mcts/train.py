@@ -15,6 +15,12 @@ model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, 
 '''
   Bugs:
 - If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)
+  TODO:
+  1. Action space: add pass move which is to be played at the terminal state
+  2. Add who is to move to state representation
+  3. Consider adding T time steps in the past
+  4. More games
+  5. Actual training on self-play games: should we do multiple epochs? test set?
 '''
 
 '''
