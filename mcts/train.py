@@ -1,18 +1,26 @@
 from model import ZeroTTT
 
 # model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
-model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-4, weight_decay=2e-4, board_len=10)
+model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-4, board_len=10)
 
 print(model.get_parameter_count())
 print(sum(p.numel() for p in model.brain.policy_head.parameters() if p.requires_grad))
 print(sum(p.numel() for p in model.brain.value_head.parameters() if p.requires_grad))
 
-# model.self_play(n_games=1000, num_simulations=200, render=1, training_epochs=1, min_positions_learn=300000, positions_per_learn=100000, batch_size=40)
-model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=1000, positions_per_learn=300, batch_size=1)
+model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=300000, positions_per_learn=100000, batch_size=40)
+# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=600, positions_per_learn=100, batch_size=40)
+# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, min_positions_learn=40, positions_per_learn=10, batch_size=1)
+
 
 '''
   Bugs:
 - If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)
+  TODO:
+  1. Action space: add pass move which is to be played at the terminal state
+  2. Add who is to move to state representation
+  3. Consider adding T time steps in the past
+  4. More games
+  5. Actual training on self-play games: should we do multiple epochs? test set?
 '''
 
 '''

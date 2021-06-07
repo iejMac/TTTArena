@@ -1,6 +1,7 @@
 import math
 import random
 import numpy as np
+from copy import deepcopy
 
 from environment import split_state
 
@@ -12,17 +13,6 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
   puct = child_value + c_puct * pb_c
   return puct
-
-def np_softmax(arr_2d, dim=2):
-  if dim == 2:
-    flat = arr_2d.flatten()
-  elif dim == 1:
-    flat = arr_2d
-
-  e_x = np.exp(flat - np.max(flat))
-  e_x = e_x / e_x.sum()
-  e_x = e_x.reshape(arr_2d.shape)
-  return e_x
 
 class Node():
   def __init__(self, state):
@@ -56,8 +46,9 @@ class Node():
     # Quick experiment:
     random.shuffle(self.children)
 
-    # return (-1.0)*value # negative value because this is evaluated from the position of the opposite player
-    return value
+    reverse_value = np.sum(self.state) == 0 # this means this state is after an O move
+    return ((-1.0)**reverse_value)*value # negative value because this is evaluated from the position of the opposite player
+    # return value
 
   def find_leaf(self, model):
 
@@ -78,8 +69,8 @@ class Node():
         max_val = val
 
     v = self.children[int(max_ind)].traverse(self.state, model)
-    # return (-1.0)*v
-    return v
+    return (-1.0)*v
+    # return v
 
 class Edge():
   def __init__(self, p, action):
@@ -93,10 +84,11 @@ class Edge():
     self.node = None
 
   def initialize_node(self, state): # destination node doesn't need to be initialized all the time, only if we're actually going to use it
-    next_state = np.copy(state)
-    next_state[self.action[0]][self.action[1]] = 1
-    self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
-    # self.node = Node(next_state)
+    next_state = deepcopy(state)
+    turn = (-1)**(np.sum(next_state) > 0)
+    next_state[self.action[0]][self.action[1]] = turn
+    # self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
+    self.node = Node(next_state)
     return
 
   def traverse(self, state, model):
@@ -133,7 +125,6 @@ class MCTS():
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       move_dist /= np.sum(move_dist)
-
     return move_dist
 
   def select_move(self, tau=1.0, external_move=None):

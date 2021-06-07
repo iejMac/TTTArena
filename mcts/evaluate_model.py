@@ -19,6 +19,7 @@ model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', board_len=bo
 env = Environment(board_len=board_len)
 
 human_metric = 0.0
+value_asymmetry = 0.0
 
 for game in games:
   game_hist = np.loadtxt(os.path.join(data_dir, game), delimiter=",", dtype=int)
@@ -36,9 +37,10 @@ for game in games:
     game_hist = game_hist.T
 
     for i, move in enumerate(game_hist):
-      p, v = model.predict(split_state(env.board * (-1)**i))
+      p, v = model.predict(split_state(env.board))
       p = p.detach().cpu().numpy()[0]
       v = v[0]
+      value_asymmetry += v
 
       # Add the probability the model would play the human move
       human_metric += p[move[0]][move[1]]
@@ -47,3 +49,4 @@ for game in games:
     env.reset()
 
 print(human_metric)
+print(value_asymmetry)
