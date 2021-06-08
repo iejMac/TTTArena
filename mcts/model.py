@@ -25,8 +25,10 @@ def append_state(states, labels, state, label):
   for i in range(2):
     for j in range(4):
       states.append(deepcopy(np.rot90(state, j)))
-      labels.append(deepcopy(np.rot90(label, j)))
-    
+      # new_label = np.r_[np.rot90(label, j).flatten(), np.array([pass_move])]
+      new_label = np.rot90(label, j).flatten()
+      labels.append(deepcopy(new_label))
+
     state = state.T
     label = label.T
   
@@ -42,11 +44,15 @@ class PolicyHead(nn.Module):
 
     self.pol_conv1 = nn.Conv2d(48, 32, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
     self.pol_conv2 = nn.Conv2d(32, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.pol_conv3 = nn.Conv2d(12, 1, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.pol_conv3 = nn.Conv2d(12, 2, padding=(2,2), kernel_size=3, stride=1, bias=use_bias)
+
+    self.pol_linear1 = nn.Linear(288, board_shape[1]*board_shape[2])
 
     self.bn1 = nn.BatchNorm2d(32)
     self.bn2 = nn.BatchNorm2d(12)
-    self.bn3 = nn.BatchNorm2d(1)
+    self.bn3 = nn.BatchNorm2d(2)
+
+    self.flatten = nn.Flatten()
 
   def forward(self, x):
     p = self.pol_conv1(x)
@@ -57,10 +63,12 @@ class PolicyHead(nn.Module):
     p = F.relu(p)
     p = self.pol_conv3(p)
     p = self.bn3(p)
+    p = F.relu(p)
 
-    p = p.view(-1, self.board_shape[1]*self.board_shape[2])
+    p = self.flatten(p)
+
+    p = self.pol_linear1(p)
     p = F.softmax(p, dim=1)
-    p = p.view(-1, self.board_shape[1], self.board_shape[2])
     return p
 
 class ValueHead(nn.Module):
@@ -160,7 +168,7 @@ class ZeroTTT():
         self.optimizer.load_state_dict(torch.load(os.path.join('models', opt_state_name), map_location=self.device))
     return
 
-  def predict(self, x):
+  def predict(self, x, interpret_policy=True):
 
     if len(x.shape) < 4:
       x = np.expand_dims(x, axis=0)
@@ -168,6 +176,10 @@ class ZeroTTT():
     x = torch.from_numpy(x).float().to(self.device)
 
     policy, value = self.brain(x)
+
+    if interpret_policy: # return 2d policy map
+      policy = policy.view(-1, self.board_len, self.board_len)
+
     return policy, value
 
   def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, min_positions_learn=100, batch_size=20 ,render=10):
@@ -246,15 +258,12 @@ class ZeroTTT():
 
             batch_pl = torch.from_numpy(batch_pl).to(self.device)
             batch_vl = torch.from_numpy(batch_vl).float().to(self.device)
-            prob, val = self.predict(batch_st)
+            prob, val = self.predict(batch_st, interpret_policy=False)
             val = val.flatten()
-    
-            prob = torch.flatten(prob, 1, 2)
-            batch_pl = torch.flatten(batch_pl, 1, 2)
 
             p_loss = self.policy_loss(prob, batch_pl)
             v_loss = self.value_loss(val, batch_vl)
-    
+
             loss = p_loss + v_loss
             loss.backward()
     
