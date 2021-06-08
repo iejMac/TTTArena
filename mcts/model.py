@@ -9,7 +9,7 @@ from torch.nn import functional as F
 from torch.optim import AdamW
 
 from mcts import MCTS
-from environment import split_state
+from environment import prepare_state
 from environment import Environment
 
 torch.manual_seed(80085)
@@ -93,7 +93,7 @@ class ValueHead(nn.Module):
     return v
 
 class Brain(nn.Module):
-  def __init__(self, input_shape=(2, 30, 30)):
+  def __init__(self, input_shape=(3, 30, 30)):
     super().__init__()
 
     self.input_shape = input_shape
@@ -134,7 +134,7 @@ class Brain(nn.Module):
 class ZeroTTT():
   def __init__(self, brain_path=None, opt_path=None, board_len=10, lr=3e-4, weight_decay=0.0):
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    self.brain = Brain(input_shape=(2, board_len, board_len)).to(self.device)
+    self.brain = Brain(input_shape=(3, board_len, board_len)).to(self.device)
     self.board_len = board_len
 
     self.optimizer = AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
@@ -189,8 +189,9 @@ class ZeroTTT():
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
+      game_state = 10
 
-      while env.game_over() == 10:
+      while game_state == 10:
 
         if len(env.move_hist) > 30: # after 30 moves no randomness
           tau = 0.01
@@ -203,23 +204,22 @@ class ZeroTTT():
         append_state(states, policy_labels, env.board, mcts.get_pi())
 
         move = mcts.select_move(tau=tau)
-        env.step(move)
+        game_state = env.step(move)
 
         if (game_nr+1) % render == 0:
           env.render()
 
       append_state(states, policy_labels, env.board, mcts.get_pi()) # append terminal state
-      game_result = env.game_over()
-      print(f"Player with token: {game_result} won the game in {len(env.move_hist)} moves")
+      print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
-      value_labels += [game_result for _ in range((len(env.move_hist) + 1)*8)]
+      value_labels += [game_state for _ in range((len(env.move_hist) + 1)*8)]
       positions_to_next_learn -= (len(env.move_hist)+1)*8
 
       if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
 
         print(f"Training on {len(states)} positions...")
 
-        train_states = [split_state(state) for state in states]
+        train_states = [prepare_state(state) for state in states]
 
         train_states = np.array(train_states)
         train_policy_labels = np.array(policy_labels)

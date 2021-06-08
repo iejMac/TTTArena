@@ -1,7 +1,7 @@
 import numpy as np
 
 from model import ZeroTTT
-from environment import split_state
+from environment import prepare_state
 from environment import Environment
 
 model = ZeroTTT("best_model", "best_opt_state")
@@ -36,8 +36,8 @@ env.step((3, 4))
 env.step((3, 3))
 
 
-# p, v = model.predict(split_state(env.board * -1))
-p, v = model.predict(split_state(env.board))
+# p, v = model.predict(prepare_state(env.board * -1))
+p, v = model.predict(prepare_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()
@@ -58,7 +58,7 @@ env.step((5, 6))
 
 env.step((9, 0))
 
-p, v = model.predict(split_state(env.board))
+p, v = model.predict(prepare_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()
@@ -77,7 +77,7 @@ env.step((5, 9))
 env.step((7, 1))
 env.step((5, 6))
 
-p, v = model.predict(split_state(env.board))
+p, v = model.predict(prepare_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()
@@ -96,7 +96,7 @@ env.step((5, 9))
 env.step((0, 3))
 env.step((5, 6))
 
-p, v = model.predict(split_state(env.board))
+p, v = model.predict(prepare_state(env.board))
 p = p.detach().cpu().numpy()
 
 env.render()

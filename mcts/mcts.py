@@ -3,7 +3,7 @@ import random
 import numpy as np
 from copy import deepcopy
 
-from environment import split_state
+from environment import prepare_state
 
 np.random.seed(80085)
 random.seed(80085)
@@ -28,7 +28,7 @@ class Node():
     if self.is_leaf_node() is False: # safety so a node doesn't double its children
       return
 
-    p_vals, value = model.predict(split_state(self.state))
+    p_vals, value = model.predict(prepare_state(self.state))
     p_vals = p_vals[0].cpu().detach().numpy()
 
     for i, row in enumerate(p_vals):

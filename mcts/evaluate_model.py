@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from model import ZeroTTT
-from environment import split_state
+from environment import prepare_state
 from environment import Environment
 
 '''
@@ -37,7 +37,7 @@ for game in games:
     game_hist = game_hist.T
 
     for i, move in enumerate(game_hist):
-      p, v = model.predict(split_state(env.board))
+      p, v = model.predict(prepare_state(env.board))
       p = p.detach().cpu().numpy()[0]
       v = v[0]
       value_asymmetry += v

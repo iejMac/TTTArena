@@ -1,7 +1,9 @@
 import numpy as np
 
-def split_state(state):
-  split = np.zeros((2, len(state), len(state)))
+def prepare_state(state):
+  split = np.zeros((3, len(state), len(state)))
+  if np.sum(state) == 0: # x turn
+    split[-1] = np.ones((len(state), len(state)))
   for i, row in enumerate(state):
     for j, cell in enumerate(row):
       if cell == 1:
@@ -71,7 +73,6 @@ class Environment():
       return 0
 
     return 10
-
 
   def render(self):
     show_board = np.full((self.board_len, self.board_len), ' ')
