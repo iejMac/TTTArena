@@ -185,8 +185,6 @@ class ZeroTTT():
   def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, min_positions_learn=100, batch_size=20 ,render=10):
     
     # Put model in training mode:
-    self.brain.train()
-    
     states = deque([], maxlen=min_positions_learn)
     policy_labels = deque([], maxlen=min_positions_learn)
     value_labels = deque([], maxlen=min_positions_learn)
@@ -197,6 +195,7 @@ class ZeroTTT():
 
     for game_nr in range(n_games):
       
+      self.brain.eval()
       mcts = MCTS(self, env.board, num_simulations=num_simulations, alpha=0.25)
       tau = 1.0
 
@@ -229,6 +228,7 @@ class ZeroTTT():
 
       if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
 
+        self.brain.train()
         print(f"Training on {len(states)} positions...")
 
         train_states = [prepare_state(state) for state in states]
