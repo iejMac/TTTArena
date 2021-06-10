@@ -71,7 +71,7 @@ class DataBase:
     val_labels = np.array(self.value_labels)
 
     try:
-      largest_index = max([int(name[12:]) for name in os.listdir(os.path.join(path, "states"))])
+      largest_index = max([int(name[12:-4]) for name in os.listdir(os.path.join(path, "states"))])
     except ValueError:
       largest_index = -1
 
