@@ -9,8 +9,9 @@ from torch.nn import functional as F
 from torch.optim import AdamW
 
 from mcts import MCTS
-from environment import prepare_state
+from database import DataBase
 from environment import Environment
+from environment import prepare_state
 
 torch.manual_seed(80085)
 np.random.seed(80085)
@@ -19,22 +20,6 @@ def softXEnt (inp, target): # temporary
   logprobs = torch.log(inp)
   cross_entropy = -(target * logprobs).sum() / inp.shape[0]
   return cross_entropy
-
-def append_state(states, labels, state, label):
-  # Augmentation
-  for i in range(2):
-    for j in range(4):
-      states.append(deepcopy(np.rot90(state, j)))
-      # new_label = np.r_[np.rot90(label, j).flatten(), np.array([pass_move])]
-      new_label = np.rot90(label, j).flatten()
-      labels.append(deepcopy(new_label))
-
-    state = state.T
-    label = label.T
-  
-  state = state.T
-  label = label.T
-  return
 
 class PolicyHead(nn.Module):
   def __init__(self, board_shape, use_bias):
@@ -182,12 +167,19 @@ class ZeroTTT():
 
     return policy, value
 
-  def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, min_positions_learn=100, batch_size=20 ,render=10):
+  def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, max_position_storage=100, batch_size=20, render=10, generate_buffer_path=None):
+    '''
+    num_simulations : limit leaf expansions for monte-carlo rollouts
+
+    max_position_storage : maximum amount of positions stored in RAM
+
+    positions_per_learn : train model every time this many positions are added to buffer
+
+    generate_buffer_path : if passed a path in string form, self-play will just generate games and
+    save them to a replay_buffer at the given path to train on later in separate algorithm.
+    '''
     
-    # Put model in training mode:
-    states = deque([], maxlen=min_positions_learn)
-    policy_labels = deque([], maxlen=min_positions_learn)
-    value_labels = deque([], maxlen=min_positions_learn)
+    database = DataBase(max_len=max_position_storage, augmentations=["flip", "rotate"])
 
     positions_to_next_learn = positions_per_learn
 
@@ -207,12 +199,8 @@ class ZeroTTT():
         if len(env.move_hist) > 30: # after 30 moves no randomness
           tau = 0.01
 
-        if np.any(env.board == 0) is False: # tie
-          break
-
         mcts.search()
-       
-        append_state(states, policy_labels, env.board, mcts.get_pi())
+        database.append_policy(env.board, mcts.get_pi())
 
         move = mcts.select_move(tau=tau)
         game_state = env.step(move)
@@ -220,41 +208,26 @@ class ZeroTTT():
         if (game_nr+1) % render == 0:
           env.render()
 
-      append_state(states, policy_labels, env.board, mcts.get_pi()) # append terminal state
+      database.append_policy(env.board, mcts.get_pi()) # append terminal state
       print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
-      value_labels += [game_state for _ in range((len(env.move_hist) + 1)*8)]
-      positions_to_next_learn -= (len(env.move_hist)+1)*8
+      database.append_value(game_state, len(env.move_hist))
+      positions_to_next_learn -= (len(env.move_hist)+1)*database.augmentation_coefficient
 
-      if len(states) >= min_positions_learn and positions_to_next_learn <= 0: # learn
-
+      if database.is_full() and generate_buffer_path is not None:
+        database.save_data(generate_buffer_path)
+        database.clear()
+      elif database.is_full() and positions_to_next_learn <= 0: # learn
         self.brain.train()
-        print(f"Training on {len(states)} positions...")
+        print(f"Training on {len(database.states)} positions...")
 
-        train_states = [prepare_state(state) for state in states]
-
-        train_states = np.array(train_states)
-        train_policy_labels = np.array(policy_labels)
-        train_value_labels = np.array(value_labels)
-
-        p = np.random.permutation(len(states))
-
-        train_states = train_states[p]
-        train_policy_labels = train_policy_labels[p]
-        train_value_labels = train_value_labels[p]
-
-        batch_count = int(len(train_states)/batch_size)
-        if len(train_states) / batch_size > batch_count:
-          batch_count += 1
+        batched_sts, batched_pls, batched_vls = database.prepare_batches(batch_size)
 
         for e in range(training_epochs):
-          for j in range(batch_count):
-
+          for j in range(len(batched_sts)):
             self.optimizer.zero_grad()
 
-            batch_st = train_states[j * batch_size: min((j+1) * batch_size, len(train_states))]
-            batch_pl = train_policy_labels[j * batch_size: min((j+1) * batch_size, len(train_policy_labels))]
-            batch_vl = train_value_labels[j * batch_size: min((j+1) * batch_size, len(train_value_labels))]
+            batch_st, batch_pl, batch_vl = batched_sts[j], batched_pls[j], batched_vls[j]
 
             batch_pl = torch.from_numpy(batch_pl).to(self.device)
             batch_vl = torch.from_numpy(batch_vl).float().to(self.device)

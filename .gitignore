@@ -1,3 +1,5 @@
 *__pycache__
 *.swp
 *.idea
+*DS_Store
+*/replay_buffer

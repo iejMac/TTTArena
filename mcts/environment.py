@@ -69,7 +69,7 @@ class Environment():
         elif similarity ==  -5 or similarity_t == -5:
           return -1
     
-    if np.any(self.board == 0) is False: # draw, VERY IMPROBABLE
+    if np.any(self.board == 0) is False: # draw
       return 0
 
     return 10

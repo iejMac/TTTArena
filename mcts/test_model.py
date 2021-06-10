@@ -34,6 +34,12 @@ env.step((2, 7))
 
 env.step((3, 4))
 env.step((3, 3))
+env.step((2, 5))
+env.step((3, 7))
+env.step((1, 5))
+env.step((0, 5))
+env.step((1, 4))
+env.step((2, 2))
 
 
 # p, v = model.predict(prepare_state(env.board * -1))
