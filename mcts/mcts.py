@@ -124,7 +124,8 @@ class MCTS():
       move_dist[child.action[0]][child.action[1]] = child.N
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
-      move_dist /= np.sum(move_dist)
+      if np.sum(move_dist) > 0.0:
+        move_dist /= np.sum(move_dist)
     return move_dist
 
   def select_move(self, tau=1.0, external_move=None):
