@@ -57,13 +57,13 @@ class PolicyHead(nn.Module):
   def forward(self, x):
     p = self.pol_conv1(x)
     p = self.bn1(p)
-    p = F.relu(p)
+    p = F.leaky_relu(p, 0.2)
     p = self.pol_conv2(p)
     p = self.bn2(p)
-    p = F.relu(p)
+    p = F.leaky_relu(p, 0.2)
     p = self.pol_conv3(p)
     p = self.bn3(p)
-    p = F.relu(p)
+    p = F.leaky_relu(p, 0.2)
 
     p = self.flatten(p)
 
@@ -88,14 +88,14 @@ class ValueHead(nn.Module):
   def forward(self, x):
     v = self.val_conv1(x)
     v = self.bn1(v)
-    v = F.relu(v)
+    v = F.leaky_relu(v, 0.2)
     v = self.val_conv2(v)
     v = self.bn2(v)
-    v = F.relu(v)
+    v = F.leaky_relu(v, 0.2)
 
     v = self.flatten(v)
     v = self.val_linear1(v)
-    v = F.relu(v)
+    v = F.leaky_relu(v, 0.2)
     v = self.val_linear2(v)
     v = torch.tanh(v)
     return v
@@ -124,16 +124,16 @@ class Brain(nn.Module):
     # Core:
     x = self.conv1(x)
     x = self.bn1(x)
-    x = F.relu(x)
+    x = F.leaky_relu(x, 0.2)
     x = self.conv2(x)
     x = self.bn2(x)
-    x = F.relu(x)
+    x = F.leaky_relu(x, 0.2)
     x = self.conv3(x)
     x = self.bn3(x)
-    x = F.relu(x)
+    x = F.leaky_relu(x, 0.2)
     x = self.conv4(x)
     x = self.bn4(x)
-    x = F.relu(x)
+    x = F.leaky_relu(x, 0.2)
 
     p, v = self.policy_head(x), self.value_head(x)
 
