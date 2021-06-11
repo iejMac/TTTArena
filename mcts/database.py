@@ -80,14 +80,19 @@ class DataBase:
     np.save(os.path.join(path, "policy_labels", f"policy_chunk_{largest_index+1}"), pol_labels)
     np.save(os.path.join(path, "value_labels", f"value_chunk_{largest_index+1}"), val_labels)
 
-  def prepare_batches(self, batch_size):
+  def prepare_batches(self, batch_size, from_memory_paths=None):
 
     assert(len(self.states) == len(self.policy_labels) == len(self.value_labels))
 
     # Numpy-ify
-    train_states = np.array([prepare_state(state) for state in self.states])
-    train_policy_labels = np.array(self.policy_labels)
-    train_value_labels = np.array(self.value_labels)
+    if from_memory_paths is None:
+      train_states = np.array([prepare_state(state) for state in self.states])
+      train_policy_labels = np.array(self.policy_labels)
+      train_value_labels = np.array(self.value_labels)
+    else:
+      train_states = np.load(os.path.join(from_memory_paths[0])
+      train_policy_labels = np.load(os.path.join(from_memory_paths[1])
+      train_value_labels = np.load(os.path.join(from_memory_paths[2])
 
     # Mix up:
     perm = np.random.permutation(len(train_states))
