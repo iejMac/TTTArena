@@ -90,9 +90,9 @@ class DataBase:
       train_policy_labels = np.array(self.policy_labels)
       train_value_labels = np.array(self.value_labels)
     else:
-      train_states = np.load(os.path.join(from_memory_paths[0])
-      train_policy_labels = np.load(os.path.join(from_memory_paths[1])
-      train_value_labels = np.load(os.path.join(from_memory_paths[2])
+      train_states = np.load(os.path.join(from_memory_paths[0]))
+      train_policy_labels = np.load(os.path.join(from_memory_paths[1]))
+      train_value_labels = np.load(os.path.join(from_memory_paths[2]))
 
     # Mix up:
     perm = np.random.permutation(len(train_states))
