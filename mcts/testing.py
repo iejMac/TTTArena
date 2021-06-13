@@ -64,9 +64,6 @@ class Test:
           self.env.step(move)
 
         self.env.reset()
-
-    print(human_move_probability)
-    print(value_sum)
     print(f"Average human move probability: {human_move_probability/sum(xo_win_moves)}")
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winner move distribution: [X, O] = {xo_win_moves}")
 
