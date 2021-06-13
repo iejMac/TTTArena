@@ -1,6 +1,7 @@
 import os
 import numpy as np
 
+from mcts import MCTS
 from model import ZeroTTT
 from environment import Environment
 from environment import prepare_state
@@ -67,7 +68,46 @@ class Test:
     print(f"Average human move probability: {human_move_probability/sum(xo_win_moves)}")
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winner move distribution: [X, O] = {xo_win_moves}")
 
+  def compare_model(self, opponent_name, opponent_opt_name, games_per_side, num_simulations=100, alpha=0.1, render=10):
+    opponent = ZeroTTT(brain_path=opponent_name, opt_path=opponent_opt_name)
+    xo_wins = [0, 0]
+
+    for game_nr in range(2*games_per_side):
+      print(f"Game {game_nr+1}...")
+      mcts_self = MCTS(self.model, self.env.board, num_simulations=num_simulations, alpha=alpha)
+      mcts_opponent = MCTS(opponent, self.env.board, num_simulations=num_simulations, alpha=alpha)
+      tau = 0.01 # no exploration
+
+      current_player, waiting_player = (mcts_self, mcts_opponent) if game_nr % 2 == 0 else (mcts_opponent, mcts_self)
+      game_state = 10
+
+      while game_state == 10:
+        current_player.search()
+        move = current_player.select_move(tau=tau) # current player selects the move
+        waiting_player.select_move(external_move=move) # waiting player updates their mcts to reflect selected move
+
+        game_state = self.env.step(move)
+        current_player, waiting_player = waiting_player, current_player
+        if (game_nr + 1) % render == 0:
+          self.env.render()
+
+      winning_player = "Model" if waiting_player == mcts_self else "Opponent"
+      winning_token = 'X' if game_state == 1 else 'O'
+      if game_state == 0:
+        print(f"It was a tie")
+      else:
+        print(f"{winning_player} won as {winning_token}")
+        if winning_player == "Model":
+          xo_wins[winning_token == "O"] += 1
+
+      print(f"Move count: {len(self.env.move_hist)}")
+      self.env.reset()
+
+    print(f"Model won {xo_wins[0]}/{games_per_side} games as X ({100*(xo_wins[0]/games_per_side)}%)")      
+    print(f"Model won {xo_wins[1]}/{games_per_side} games as O ({100*(xo_wins[1]/games_per_side)}%)")      
+    
 test = Test("best_model", "best_opt_state", 10)
+test.compare_model("random_model", "random_opt_state", games_per_side=2, num_simulations=50, render=1)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
