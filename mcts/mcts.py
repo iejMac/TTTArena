@@ -26,7 +26,6 @@ class Node():
       return
 
     p_vals, value = model.predict(prepare_state(self.state))
-    p_vals = p_vals[0].cpu().detach().numpy()
 
     for i, row in enumerate(p_vals):
       for j, prior_prob in enumerate(row):
