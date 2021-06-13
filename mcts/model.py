@@ -153,7 +153,7 @@ class ZeroTTT():
         self.optimizer.load_state_dict(torch.load(os.path.join('models', opt_state_name), map_location=self.device))
     return
 
-  def predict(self, x, interpret_policy=True):
+  def predict(self, x, interpret_output=True):
 
     if len(x.shape) < 4:
       x = np.expand_dims(x, axis=0)
@@ -162,8 +162,10 @@ class ZeroTTT():
 
     policy, value = self.brain(x)
 
-    if interpret_policy: # return 2d policy map
+    if interpret_output: # return 2d policy map and value in usable form
       policy = policy.view(-1, self.board_len, self.board_len)
+      policy = policy[0].cpu().detach().numpy()
+      value = value[0][0].item()
 
     return policy, value
 
@@ -231,7 +233,7 @@ class ZeroTTT():
 
             batch_pl = torch.from_numpy(batch_pl).to(self.device)
             batch_vl = torch.from_numpy(batch_vl).float().to(self.device)
-            prob, val = self.predict(batch_st, interpret_policy=False)
+            prob, val = self.predict(batch_st, interpret_output=False)
             val = val.flatten()
 
             p_loss = self.policy_loss(prob, batch_pl)
