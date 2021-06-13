@@ -5,9 +5,6 @@ from copy import deepcopy
 
 from environment import prepare_state
 
-np.random.seed(80085)
-random.seed(80085)
-
 def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   c_puct = 4
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
