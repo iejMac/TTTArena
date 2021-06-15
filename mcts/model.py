@@ -181,7 +181,7 @@ class ZeroTTT():
     save them to a replay_buffer at the given path to train on later in separate algorithm.
     '''
     
-    database = DataBase(max_len=max_position_storage, augmentations=["flip", "rotate"])
+    database = DataBase(max_len=max_position_storage)
 
     positions_to_next_learn = positions_per_learn
 
@@ -202,7 +202,7 @@ class ZeroTTT():
           tau = 0.01
 
         mcts.search(num_simulations=num_simulations)
-        database.append_policy(env.board, mcts.get_pi())
+        database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"])
 
         move = mcts.select_move(tau=tau)
         game_state = env.step(move)
@@ -210,7 +210,7 @@ class ZeroTTT():
         if (game_nr+1) % render == 0:
           env.render()
 
-      database.append_policy(env.board, mcts.get_pi()) # append terminal state
+      database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
       print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
       database.append_value(game_state, len(env.move_hist))

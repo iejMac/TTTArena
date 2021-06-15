@@ -21,7 +21,7 @@ def flip_augmentation(states, labels):
   return aug_states, aug_labels
 
 class DataBase:
-  def __init__(self, max_len=600, augmentations=[]):
+  def __init__(self, max_len=600):
     '''
     augmentations : 
       flip - transpose the state and policy (2x)
@@ -33,7 +33,6 @@ class DataBase:
 
     self.max_len = max_len
     self.augmentation_coefficient = 1
-    self.augmentations = augmentations
 
     self.states = deque([], maxlen=max_len)
     self.policy_labels = deque([], maxlen=max_len)
@@ -47,11 +46,11 @@ class DataBase:
   def is_full(self):
     return len(self.states) == len(self.policy_labels) == len(self.value_labels) == self.max_len
 
-  def append_policy(self, state, policy_label):
+  def append_policy(self, state, policy_label, augmentations=[]):
     aug_states = [state]
     aug_policy_labels = [policy_label]
 
-    for aug in self.augmentations:
+    for aug in augmentations:
       aug_states, aug_policy_labels = eval(aug + "_augmentation")(aug_states, aug_policy_labels)
 
     # Temporary:
