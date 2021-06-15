@@ -106,8 +106,7 @@ class Test:
     print(f"Model won {xo_wins[0]}/{games_per_side} games as X ({100*(xo_wins[0]/games_per_side)}%)")      
     print(f"Model won {xo_wins[1]}/{games_per_side} games as O ({100*(xo_wins[1]/games_per_side)}%)")      
     
-test = Test("best_model", "best_opt_state", 10)
-test.compare_model("random_model", "random_opt_state", games_per_side=2, num_simulations=50, render=1)
+test = Test("trained_model_8", "trained_opt_state_8", 10)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -115,5 +114,6 @@ pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6)]
 pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
+test.compare_model("trained_model_7", "trained_opt_state_7", games_per_side=20, num_simulations=100, render=10, alpha=0.45)
 # test.human_game_evaluation("../data/30x30")
 # test.visualize_model_output(pos1, True)

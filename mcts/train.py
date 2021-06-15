@@ -1,7 +1,7 @@
 from model import ZeroTTT
 
 # model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
-model = ZeroTTT(brain_path='trained_model_3', opt_path='trained_opt_state_3', lr=3e-4, weight_decay=2e-4, board_len=10)
+model = ZeroTTT(brain_path='trained_model_8', opt_path='trained_opt_state_8', lr=3e-4, weight_decay=2e-4, board_len=10)
 # model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-3, board_len=10)
 
 print(model.get_parameter_count())
