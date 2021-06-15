@@ -6,7 +6,7 @@ from copy import deepcopy
 from environment import prepare_state
 
 def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
-  c_puct = 4
+  c_puct = 8
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
   puct = child_value + c_puct * pb_c
   return puct
@@ -116,6 +116,7 @@ class MCTS():
     move_dist = np.zeros((len(self.root.state), len(self.root.state)))
     for child in self.root.children:
       move_dist[child.action[0]][child.action[1]] = child.N
+    print(move_dist)
     if as_prob is True:
       move_dist = np.power(move_dist, 1.0/tau)
       if np.sum(move_dist) > 0.0:

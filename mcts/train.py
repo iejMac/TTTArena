@@ -1,7 +1,7 @@
 from model import ZeroTTT
 
 # model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
-model = ZeroTTT(brain_path='trained_model_8', opt_path='trained_opt_state_8', lr=3e-4, weight_decay=2e-4, board_len=10)
+model = ZeroTTT(brain_path='trained_model_9', opt_path='trained_opt_state_9', lr=3e-4, weight_decay=2e-4, board_len=10)
 # model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-3, board_len=10)
 
 print(model.get_parameter_count())
@@ -9,7 +9,9 @@ print(sum(p.numel() for p in model.brain.policy_head.parameters() if p.requires_
 print(sum(p.numel() for p in model.brain.value_head.parameters() if p.requires_grad))
 
 # model.self_play(n_games=1000, num_simulations=200, render=1, training_epochs=1, max_position_storage=300000, positions_per_learn=100000, batch_size=40)
-model.self_play(n_games=1000, num_simulations=200, render=1200, training_epochs=0, max_position_storage=10000, positions_per_learn=30000, batch_size=40, generate_buffer_path="/storage/replay_buffer")
+# model.self_play(n_games=1000, num_simulations=200, render=1200, training_epochs=0, max_position_storage=10000, positions_per_learn=30000, batch_size=40, generate_buffer_path="/storage/replay_buffer")
+model.self_play(n_games=1000, num_simulations=200, render=1, training_epochs=0, max_position_storage=10000, positions_per_learn=30000, batch_size=40, generate_buffer_path="/storage/replay_buffer")
+
 
 '''
   Bugs:

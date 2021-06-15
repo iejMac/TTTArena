@@ -193,7 +193,7 @@ class ZeroTTT():
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, alpha=0.25)
+      mcts = MCTS(self, env.board, alpha=0.75)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
