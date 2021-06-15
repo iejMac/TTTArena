@@ -74,15 +74,15 @@ class Test:
 
     for game_nr in range(2*games_per_side):
       print(f"Game {game_nr+1}...")
-      mcts_self = MCTS(self.model, self.env.board, num_simulations=num_simulations, alpha=alpha)
-      mcts_opponent = MCTS(opponent, self.env.board, num_simulations=num_simulations, alpha=alpha)
+      mcts_self = MCTS(self.model, self.env.board, alpha=alpha)
+      mcts_opponent = MCTS(opponent, self.env.board, alpha=alpha)
       tau = 0.01 # no exploration
 
       current_player, waiting_player = (mcts_self, mcts_opponent) if game_nr % 2 == 0 else (mcts_opponent, mcts_self)
       game_state = 10
 
       while game_state == 10:
-        current_player.search()
+        current_player.search(num_simulations)
         move = current_player.select_move(tau=tau) # current player selects the move
         waiting_player.select_move(external_move=move) # waiting player updates their mcts to reflect selected move
 
@@ -105,9 +105,38 @@ class Test:
 
     print(f"Model won {xo_wins[0]}/{games_per_side} games as X ({100*(xo_wins[0]/games_per_side)}%)")      
     print(f"Model won {xo_wins[1]}/{games_per_side} games as O ({100*(xo_wins[1]/games_per_side)}%)")      
+
+  def play_model(self, player="X", num_simulations=100, alpha=0.1):
+    mcts = MCTS(self.model, self.env.board, alpha=alpha)
+    game_state = 10
+    tau = 0.01
+    turn = 1 if player == "X" else -1 # your move vs model move
+
+    self.env.render()
+
+    while game_state == 10:
+      if turn == 1:
+        move_str = input("Input a move y, x: ")
+        move = tuple(int(x) for x in move_str.split(","))
+        mcts.select_move(external_move=move)
+      else:
+        mcts.search(num_simulations=num_simulations)
+        move = mcts.select_move(tau=tau)
+
+      game_state = self.env.step(move)
+      turn *= -1
+
+      self.env.render()
+
+    # TODO: hack assumes, no ties
+    winning_token = "X" if game_state == 1 else "O"
+    winner = "You" if winning_token == player else "Model"
+    print(f"{winner} won in {len(self.env.move_hist)} moves")
+    self.env.reset()
     
 test = Test("best_model", "best_opt_state", 10)
-test.compare_model("random_model", "random_opt_state", games_per_side=2, num_simulations=50, render=1)
+# test.compare_model("random_model", "random_opt_state", games_per_side=2, num_simulations=50, render=1)
+test.play_model()
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]

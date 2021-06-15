@@ -19,8 +19,7 @@ model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, 
   TODO:
   1. Action space: add pass move which is to be played at the terminal state
   2. Consider adding T time steps in the past
-  3. More games
-  4. Actual training on self-play games: should we do multiple epochs? test set?
+  3. num_simulations should be an input to search, not the construtor of MCTS
 '''
 
 '''

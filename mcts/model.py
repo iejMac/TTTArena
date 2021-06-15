@@ -190,7 +190,7 @@ class ZeroTTT():
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, num_simulations=num_simulations, alpha=0.25)
+      mcts = MCTS(self, env.board, alpha=0.25)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
@@ -201,7 +201,7 @@ class ZeroTTT():
         if len(env.move_hist) > 30: # after 30 moves no randomness
           tau = 0.01
 
-        mcts.search()
+        mcts.search(num_simulations=num_simulations)
         database.append_policy(env.board, mcts.get_pi())
 
         move = mcts.select_move(tau=tau)

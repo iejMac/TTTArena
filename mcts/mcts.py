@@ -104,16 +104,14 @@ class Edge():
 
 
 class MCTS():
-  def __init__(self, model, root_state, num_simulations=1600, alpha=0.25):
+  def __init__(self, model, root_state, alpha=0.25):
     self.model = model
     self.root = Node(root_state)
     self.root.expand(self.model)
-    self.num_simulations = num_simulations # represents "thinking time"
-
     self.alpha = alpha
 
-  def search(self): # builds the search tree from the root node
-    for i in range(self.num_simulations):
+  def search(self, num_simulations=200): # builds the search tree from the root node
+    for i in range(num_simulations):
       self.root.find_leaf(self.model)
     return
 
