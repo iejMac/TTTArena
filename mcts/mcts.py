@@ -109,6 +109,11 @@ class MCTS():
     self.root = Node(root_state)
     self.root.expand(self.model)
     self.alpha = alpha
+    # Add dirichlet noise to root node:
+    dirichlet = np.random.dirichlet([0.3]*len(self.root.children))
+    for i, child in enumerate(self.root.children):
+      if self.root.state[child.action[0]][child.action[1]] == 0.0:
+        child.P = (1 - self.alpha)*child.P + dirichlet[i] * self.alpha
 
   def search(self, num_simulations=200): # builds the search tree from the root node
     for i in range(num_simulations):
