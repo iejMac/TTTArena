@@ -11,17 +11,25 @@ def rotate_augmentation(states, labels):
     for j in range(4):
       aug_states.append(deepcopy(np.rot90(states[i], j)))
       aug_labels.append(deepcopy(np.rot90(labels[i], j)))
-  return aug_states, aug_labels
+  return aug_states, aug_labels, []
     
 def flip_augmentation(states, labels):
   aug_states, aug_labels = [], []
   for i in range(len(states)):
     aug_states += [deepcopy(states[i]), deepcopy(states[i].T)]
     aug_labels += [deepcopy(labels[i]), deepcopy(labels[i].T)]
-  return aug_states, aug_labels
+  return aug_states, aug_labels, []
+
+def swap_perspective_augmentation(states, labels):
+  aug_states, aug_labels, val_mask = [], [], []
+  for i in range(len(states)):
+    aug_states += [deepcopy(states[i]), deepcopy((-1)*states[i])]
+    aug_labels += [deepcopy(labels[i]), deepcopy(labels[i])]
+    val_mask += [1, -1]
+  return aug_states, aug_labels, val_mask
 
 class DataBase:
-  def __init__(self, max_len=600, augmentations=[]):
+  def __init__(self, max_len=600):
     '''
     augmentations : 
       flip - transpose the state and policy (2x)
@@ -33,11 +41,11 @@ class DataBase:
 
     self.max_len = max_len
     self.augmentation_coefficient = 1
-    self.augmentations = augmentations
 
     self.states = deque([], maxlen=max_len)
     self.policy_labels = deque([], maxlen=max_len)
     self.value_labels = deque([], maxlen=max_len)
+    self.value_mask = []
 
   def clear(self):
     self.states.clear()
@@ -47,12 +55,13 @@ class DataBase:
   def is_full(self):
     return len(self.states) == len(self.policy_labels) == len(self.value_labels) == self.max_len
 
-  def append_policy(self, state, policy_label):
+  def append_policy(self, state, policy_label, augmentations=[]):
     aug_states = [state]
     aug_policy_labels = [policy_label]
 
-    for aug in self.augmentations:
-      aug_states, aug_policy_labels = eval(aug + "_augmentation")(aug_states, aug_policy_labels)
+    for aug in augmentations:
+      aug_states, aug_policy_labels, val_mask = eval(aug + "_augmentation")(aug_states, aug_policy_labels)
+      self.value_mask += val_mask
 
     # Temporary:
     aug_policy_labels = [aug.flatten() for aug in aug_policy_labels]
@@ -62,7 +71,11 @@ class DataBase:
     self.augmentation_coefficient = len(aug_states)
 
   def append_value(self, winner, game_length):
-    self.value_labels += [winner]*((game_length + 1)*self.augmentation_coefficient)
+    val_labs = [winner]*((game_length + 1)*self.augmentation_coefficient)
+    if len(self.value_mask) == len(val_labs):
+      val_labs = [val_labs[i] * self.value_mask[i] for i in range(len(val_labs))]
+      self.value_mask = []
+    self.value_labels += val_labs
 
   def save_data(self, path="./replay_buffer"):
     prepared_states = [prepare_state(state) for state in self.states]
