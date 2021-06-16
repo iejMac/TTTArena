@@ -28,10 +28,11 @@ class IdentityBlock(nn.Module):
   def __init__(self, f, filters, input_dim, use_bias=True):
     super().__init__()
     pad = int((f - 1)/2) # same padding
-    F1, F2, F3 = filters
+    F1, F2 = filters
     self.conv1 = nn.Conv2d(input_dim, F1, padding=(pad,pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv2 = nn.Conv2d(F1, F2, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
-    self.conv3 = nn.Conv2d(F2, F3, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+    self.conv3 = nn.Conv2d(F2, F1, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+
   def forward(self, x):
     shortcut = x
 
@@ -55,7 +56,8 @@ class ConvolutionalBlock(nn.Module):
     self.conv1 = nn.Conv2d(input_dim, F1, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv2 = nn.Conv2d(F1, F2, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv3 = nn.Conv2d(F2, F3, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
-    self.conv4 = nn.Conv2d(input_dim, F3, padding=(0,0), kernel_size=1, stride=1, bias=use_bias)
+    self.conv_change = nn.Conv2d(input_dim, F3, padding=(0,0), kernel_size=1, stride=1, bias=use_bias)
+
   def forward(self, x):
     shortcut = x
 
@@ -66,7 +68,7 @@ class ConvolutionalBlock(nn.Module):
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv3(x)
-    shortcut = self.conv4(shortcut)
+    shortcut = self.conv_change(shortcut)
     x += shortcut
     x = F.leaky_relu(x, 0.2)
 
@@ -76,7 +78,7 @@ class PolicyHead(nn.Module):
   def __init__(self, board_shape, use_bias):
     super().__init__()
     self.board_shape = board_shape
-    self.identity1 = IdentityBlock(3, [24, 48, 24], 24, use_bias)
+    self.identity1 = IdentityBlock(3, [24, 48], 24, use_bias)
     self.conv1 = nn.Conv2d(24, 1, padding=(1, 1), kernel_size=3, stride=1, bias=use_bias)
     self.flatten = nn.Flatten()
 
@@ -110,7 +112,7 @@ class Brain(nn.Module):
 
     self.conv1 = nn.Conv2d(input_shape[0], 16, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
     self.convolutional1 = ConvolutionalBlock(5, [24, 48, 24], 16, use_bias)
-    self.identity1 = IdentityBlock(5, [24, 48, 24], 24, use_bias)
+    self.identity1 = IdentityBlock(5, [24, 48], 24, use_bias)
 
     self.policy_head = PolicyHead(input_shape, use_bias)
     self.value_head = ValueHead(use_bias)
