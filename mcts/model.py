@@ -21,67 +21,83 @@ def softXEnt (inp, target): # temporary
   cross_entropy = -(target * logprobs).sum() / inp.shape[0]
   return cross_entropy
 
+# TODO: try out this variant of residual blocks (diff from paper but same as behavioral_cloning) if doesn't work well
+# try the regular BasicBlock (same as paper)
+
+class IdentityBlock(nn.Module):
+  def __init__(self, f, filters, input_dim, use_bias=True):
+    super().__init__()
+    pad = int((f - 1)/2) # same padding
+    F1, F2, F3 = filters
+    self.conv1 = nn.Conv2d(input_dim, F1, padding=(pad,pad), kernel_size=f, stride=1, bias=use_bias)
+    self.conv2 = nn.Conv2d(F1, F2, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+    self.conv3 = nn.Conv2d(F2, F3, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+  def forward(self, x):
+    shortcut = x
+
+    x = self.conv1(x)
+    x = F.leaky_relu(x, 0.2)
+
+    x = self.conv2(x)
+    x = F.leaky_relu(x, 0.2)
+
+    x = self.conv3(x)
+    x += shortcut
+    x = F.leaky_relu(x, 0.2)
+
+    return x
+
+class ConvolutionalBlock(nn.Module):
+  def __init__(self, f, filters, input_dim, use_bias=True):
+    super().__init__()
+    pad = int((f - 1)/2) # same padding
+    F1, F2, F3 = filters
+    self.conv1 = nn.Conv2d(input_dim, F1, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+    self.conv2 = nn.Conv2d(F1, F2, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+    self.conv3 = nn.Conv2d(F2, F3, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
+    self.conv4 = nn.Conv2d(input_dim, F3, padding=(0,0), kernel_size=1, stride=1, bias=use_bias)
+  def forward(self, x):
+    shortcut = x
+
+    x = self.conv1(x)
+    x = F.leaky_relu(x, 0.2)
+
+    x = self.conv2(x)
+    x = F.leaky_relu(x, 0.2)
+
+    x = self.conv3(x)
+    shortcut = self.conv4(shortcut)
+    x += shortcut
+    x = F.leaky_relu(x, 0.2)
+
+    return x
+
 class PolicyHead(nn.Module):
   def __init__(self, board_shape, use_bias):
     super().__init__()
-
     self.board_shape = board_shape
-
-    self.pol_conv1 = nn.Conv2d(48, 32, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.pol_conv2 = nn.Conv2d(32, 12, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.pol_conv3 = nn.Conv2d(12, 2, padding=(2,2), kernel_size=3, stride=1, bias=use_bias)
-
-    self.pol_linear1 = nn.Linear(288, board_shape[1]*board_shape[2])
-
-    self.bn1 = nn.BatchNorm2d(32)
-    self.bn2 = nn.BatchNorm2d(12)
-    self.bn3 = nn.BatchNorm2d(2)
-
+    self.identity1 = IdentityBlock(3, [24, 48, 24], 24, use_bias)
+    self.conv1 = nn.Conv2d(24, 1, padding=(1, 1), kernel_size=3, stride=1, bias=use_bias)
     self.flatten = nn.Flatten()
 
   def forward(self, x):
-    p = self.pol_conv1(x)
-    p = self.bn1(p)
-    p = F.leaky_relu(p, 0.2)
-    p = self.pol_conv2(p)
-    p = self.bn2(p)
-    p = F.leaky_relu(p, 0.2)
-    p = self.pol_conv3(p)
-    p = self.bn3(p)
-    p = F.leaky_relu(p, 0.2)
-
+    p = self.identity1(x)
+    p = self.conv1(p)
     p = self.flatten(p)
-
-    p = self.pol_linear1(p)
     p = F.softmax(p, dim=1)
     return p
 
 class ValueHead(nn.Module):
   def __init__(self, use_bias):
     super().__init__()
-    self.val_conv1 = nn.Conv2d(48, 24, kernel_size=5, stride=1, bias=use_bias)
-    self.val_conv2 = nn.Conv2d(24, 4, kernel_size=3, stride=1, bias=use_bias)
-
-    self.val_linear1 = nn.Linear(64, 50)
-    self.val_linear2 = nn.Linear(50, 1)
-
-    self.bn1 = nn.BatchNorm2d(24)
-    self.bn2 = nn.BatchNorm2d(4)
-
+    self.convolutional1 = ConvolutionalBlock(3, [24, 48, 1], 24, use_bias)
+    self.val_linear1 = nn.Linear(100, 1)
     self.flatten = nn.Flatten()
 
   def forward(self, x):
-    v = self.val_conv1(x)
-    v = self.bn1(v)
-    v = F.leaky_relu(v, 0.2)
-    v = self.val_conv2(v)
-    v = self.bn2(v)
-    v = F.leaky_relu(v, 0.2)
-
+    v = self.convolutional1(x)
     v = self.flatten(v)
     v = self.val_linear1(v)
-    v = F.leaky_relu(v, 0.2)
-    v = self.val_linear2(v)
     v = torch.tanh(v)
     return v
 
@@ -90,17 +106,11 @@ class Brain(nn.Module):
     super().__init__()
 
     self.input_shape = input_shape
+    use_bias = True
 
-    use_bias = False
-    self.conv1 = nn.Conv2d(input_shape[0], 64, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.conv2 = nn.Conv2d(64, 96, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.conv3 = nn.Conv2d(96, 96, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-    self.conv4 = nn.Conv2d(96, 48, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
-
-    self.bn1 = nn.BatchNorm2d(64)
-    self.bn2 = nn.BatchNorm2d(96)
-    self.bn3 = nn.BatchNorm2d(96)
-    self.bn4 = nn.BatchNorm2d(48)
+    self.conv1 = nn.Conv2d(input_shape[0], 16, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
+    self.convolutional1 = ConvolutionalBlock(5, [24, 48, 24], 16, use_bias)
+    self.identity1 = IdentityBlock(5, [24, 48, 24], 24, use_bias)
 
     self.policy_head = PolicyHead(input_shape, use_bias)
     self.value_head = ValueHead(use_bias)
@@ -108,20 +118,11 @@ class Brain(nn.Module):
   def forward(self, x):
     # Core:
     x = self.conv1(x)
-    x = self.bn1(x)
-    x = F.leaky_relu(x, 0.2)
-    x = self.conv2(x)
-    x = self.bn2(x)
-    x = F.leaky_relu(x, 0.2)
-    x = self.conv3(x)
-    x = self.bn3(x)
-    x = F.leaky_relu(x, 0.2)
-    x = self.conv4(x)
-    x = self.bn4(x)
-    x = F.leaky_relu(x, 0.2)
+    x = F.leaky_relu(x)
+    x = self.convolutional1(x)
+    x = self.identity1(x)
 
     p, v = self.policy_head(x), self.value_head(x)
-
     return p, v
 
 class ZeroTTT():
