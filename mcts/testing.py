@@ -38,6 +38,8 @@ class Test:
 
     human_move_probability = 0.0
     value_sum = 0.0
+    xo_certainty = [0.0, 0.0]
+    xo_certainty_count = [0, 0]
     value_mse = 0.0
     correct_terminal_state_sign = 0
     xo_win_moves = [0, 0]
@@ -66,6 +68,8 @@ class Test:
           # Add the probability the model would play the human move
           human_move_probability += p[move[0]][move[1]]
           value_sum += v
+          xo_certainty[v < 0.0] += abs(v)
+          xo_certainty_count[v < 0.0] += 1
           value_mse += (winner - v)**2
 
           self.env.step(move)
@@ -78,6 +82,7 @@ class Test:
         self.env.reset()
     print(f"Average human move probability: {human_move_probability/sum(xo_win_moves)}")
     print(f"Average position evaluation MSE: {value_mse/sum(xo_win_moves)}")
+    print(f"Average evaluation certainty: [X, O] = {xo_certainty[0]/(xo_certainty_count[0]+0.1)}, {xo_certainty[1]/(xo_certainty_count[1]+0.1)}")
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winning position distribution: [X, O] = {xo_win_moves}")
     print(f"Evaluated {correct_terminal_state_sign}/{compatible_games} terminal states with correct sign")
 
@@ -147,15 +152,17 @@ class Test:
     print(f"{winner} won in {len(self.env.move_hist)} moves")
     self.env.reset()
     
-test = Test("trained_model_0", "trained_opt_state_0", 10)
+# test = Test("test_trained_model_1", "test_trained_opt_state_1", 10)
+test = Test("trained_model_1", "trained_opt_state_1", 10)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
-(3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
+(3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]
 pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6)]
 pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
 # test.play_model(player="X", num_simulations=800)
-# test.compare_model("trained_model_9", "trained_opt_state_9", games_per_side=20, num_simulations=100, render=10, alpha=0.45)
-test.human_game_evaluation("../data/30x30")
-# test.visualize_model_output(pos1, True)
+# test.compare_model("test_trained_model_2", "test_trained_opt_state_2", games_per_side=40, num_simulations=50, render=1, alpha=0.2)
+# test.compare_model("trained_model_1", "trained_opt_state_1", games_per_side=40, num_simulations=50, render=1, alpha=0.2)
+# test.human_game_evaluation("../data/30x30")
+test.visualize_model_output(pos1, True)

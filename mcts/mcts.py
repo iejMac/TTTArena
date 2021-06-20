@@ -111,6 +111,9 @@ class MCTS():
     for i, child in enumerate(self.root.children):
       if self.root.state[child.action[0]][child.action[1]] == 0.0:
         child.P = (1 - self.alpha)*child.P + dirichlet[i] * self.alpha
+    child_sum = sum([c.P for c in self.root.children]) # re-normalize
+    for child in self.root.children:
+      child.P /= child_sum
 
   def search(self, num_simulations=200): # builds the search tree from the root node
     for i in range(num_simulations):
