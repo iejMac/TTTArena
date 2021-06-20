@@ -3,8 +3,8 @@ import numpy as np
 
 from mcts import MCTS
 from model import ZeroTTT
+from database import prepare_state
 from environment import Environment
-from environment import prepare_state
 
 class Test:
   def __init__(self, model_name, opt_name, board_len=10):

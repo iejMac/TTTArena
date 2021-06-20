@@ -3,7 +3,17 @@ import numpy as np
 from copy import deepcopy
 from collections import deque
 
-from environment import prepare_state
+def prepare_state(state):
+  split = np.zeros((3, len(state), len(state)))
+  if np.sum(state) == 0: # x turn
+    split[-1] = np.ones((len(state), len(state)))
+  for i, row in enumerate(state):
+    for j, cell in enumerate(row):
+      if cell == 1:
+        split[0][i][j] = 1
+      elif cell == -1:
+        split[1][i][j] = 1
+  return split
 
 def rotate_augmentation(states, labels):
   aug_states, aug_labels = [], []
@@ -92,6 +102,8 @@ class DataBase:
     np.save(os.path.join(path, "states", f"state_chunk_{largest_index+1}"), states)
     np.save(os.path.join(path, "policy_labels", f"policy_chunk_{largest_index+1}"), pol_labels)
     np.save(os.path.join(path, "value_labels", f"value_chunk_{largest_index+1}"), val_labels)
+
+  def load_data(self, path, num):
 
   def prepare_batches(self, batch_size, from_memory_paths=None):
 

@@ -3,7 +3,7 @@ import random
 import numpy as np
 from copy import deepcopy
 
-from environment import prepare_state
+from database import prepare_state
 
 np.random.seed(80085)
 random.seed(80085)

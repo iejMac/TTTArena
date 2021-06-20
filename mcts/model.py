@@ -10,8 +10,8 @@ from torch.optim import AdamW
 
 from mcts import MCTS
 from database import DataBase
+from database import prepare_state
 from environment import Environment
-from environment import prepare_state
 
 torch.manual_seed(80085)
 np.random.seed(80085)
