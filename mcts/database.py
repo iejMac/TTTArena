@@ -15,6 +15,14 @@ def prepare_state(state):
         split[1][i][j] = 1
   return split
 
+def unprepare_state(prepared_state):
+  board_len = len(prepared_state[0])
+  state = np.zeros((board_len, board_len))
+  for i in range(board_len):
+    for j in range(board_len):
+      state[i][j] = prepared_state[0][i][j]*1 + prepared_state[1][i][j]*(-1)
+  return state
+
 def rotate_augmentation(states, labels):
   aug_states, aug_labels = [], []
   for i in range(len(states)):
@@ -103,7 +111,15 @@ class DataBase:
     np.save(os.path.join(path, "policy_labels", f"policy_chunk_{largest_index+1}"), pol_labels)
     np.save(os.path.join(path, "value_labels", f"value_chunk_{largest_index+1}"), val_labels)
 
-  def load_data(self, path, num):
+  def load_data(self, path, chunk_num):
+    states = np.load(os.path.join(path, "states", f"state_chunk_{chunk_num}.npy"))
+    policy_labels = np.load(os.path.join(path, "policy_labels", f"policy_chunk_{chunk_num}.npy"))
+    value_labels = np.load(os.path.join(path, "value_labels", f"value_chunk_{chunk_num}.npy"))
+
+    for i, state in enumerate(states):
+      self.states.append(unprepare_state(state))
+      self.policy_labels.append(policy_labels[i])
+      self.value_labels.append(value_labels[i])
 
   def prepare_batches(self, batch_size, from_memory_paths=None):
 
