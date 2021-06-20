@@ -3,7 +3,7 @@ import random
 import numpy as np
 from copy import deepcopy
 
-from environment import prepare_state
+from database import prepare_state
 
 def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
   c_puct = 4

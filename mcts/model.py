@@ -10,8 +10,8 @@ from torch.nn import functional as F
 
 from mcts import MCTS
 from database import DataBase
+from database import prepare_state
 from environment import Environment
-from environment import prepare_state
 
 def softXEnt (inp, target): # temporary
   logprobs = torch.log(inp)
