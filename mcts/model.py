@@ -93,16 +93,14 @@ class PolicyHead(nn.Module):
   def __init__(self, board_shape, use_bias):
     super().__init__()
     self.board_shape = board_shape
-    self.identity1 = IdentityBlock(3, [24, 48], 24, use_bias)
-    self.conv1 = nn.Conv2d(24, 1, padding=(1, 1), kernel_size=3, stride=1, bias=use_bias)
-    # self.bn1 = nn.BatchNorm2d(1)
+    self.convolutional1 = ConvolutionalBlock(3, [24, 48, 1], 24, use_bias)
+    self.pol_linear1 = nn.Linear(100, self.board_shape[0]*self.board_shape[0] + 1) # +1 for pass move
     self.flatten = nn.Flatten()
 
   def forward(self, x):
-    p = self.identity1(x)
-    p = self.conv1(p)
-    # p = self.bn1(p)
+    p = self.convolutional1(x)
     p = self.flatten(p)
+    p = self.pol_linear1(p)
     p = F.softmax(p, dim=1)
     return p
 
@@ -121,7 +119,7 @@ class ValueHead(nn.Module):
     return v
 
 class Brain(nn.Module):
-  def __init__(self, input_shape=(3, 30, 30)):
+  def __init__(self, input_shape=(3, 10, 10)):
     super().__init__()
 
     self.input_shape = input_shape
@@ -129,7 +127,8 @@ class Brain(nn.Module):
     self.conv1 = nn.Conv2d(input_shape[0], 16, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
     self.convolutional1 = ConvolutionalBlock(5, [24, 48, 24], 16, use_bias)
     self.identity1 = IdentityBlock(5, [24, 48], 24, use_bias)
-    self.policy_head = PolicyHead(input_shape, use_bias)
+
+    self.policy_head = PolicyHead((input_shape[1], input_shape[2]), use_bias)
     self.value_head = ValueHead(use_bias)
 
     # self.bn1 = nn.BatchNorm2d(16)
@@ -184,10 +183,12 @@ class ZeroTTT():
 
     policy, value = self.brain(x)
 
-    if interpret_output: # return 2d policy map and value in usable form
-      policy = policy.view(-1, self.board_len, self.board_len)
-      policy = policy[0].cpu().detach().numpy()
+    if interpret_output: # return 2d policy map, pass move, and value in usable form (ASSUMES SINGLE POSITION)
+      policy, pass_move = policy[0][:-1], policy[0][-1].item()
+      policy = policy.view(self.board_len, self.board_len)
+      policy = policy.cpu().detach().numpy()
       value = value[0][0].item()
+      return policy, pass_move, value
 
     return policy, value
 
@@ -232,7 +233,9 @@ class ZeroTTT():
         if (game_nr+1) % render == 0:
           env.render()
 
-      database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
+      terminal_lab = np.zeros(self.board_len**2 + 1)
+      terminal_lab[-1] = 1.0 # proper behavior for terminal state is pass move
+      database.append_policy(env.board, terminal_lab, augmentations=["flip", "rotate"]) # append terminal state
       print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
       database.append_value(game_state, len(env.move_hist))
