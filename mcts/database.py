@@ -26,16 +26,22 @@ def unprepare_state(prepared_state):
 def rotate_augmentation(states, labels):
   aug_states, aug_labels = [], []
   for i in range(len(states)):
+    pass_move = labels[i][-1]
+    policy_board = labels[i][:-1].reshape(states[i].shape)
     for j in range(4):
       aug_states.append(deepcopy(np.rot90(states[i], j)))
-      aug_labels.append(deepcopy(np.rot90(labels[i], j)))
+      reconstructed_aug_label = np.r_[np.rot90(policy_board, j).flatten(), pass_move]
+      aug_labels.append(deepcopy(reconstructed_aug_label))
   return aug_states, aug_labels, []
     
 def flip_augmentation(states, labels):
   aug_states, aug_labels = [], []
   for i in range(len(states)):
+    pass_move = labels[i][-1]
+    policy_board = labels[i][:-1].reshape(states[i].shape)
     aug_states += [deepcopy(states[i]), deepcopy(states[i].T)]
-    aug_labels += [deepcopy(labels[i]), deepcopy(labels[i].T)]
+    reconstructed_aug_label = np.r_[policy_board.T.flatten(), pass_move]  
+    aug_labels += [deepcopy(labels[i]), deepcopy(reconstructed_aug_label)]
   return aug_states, aug_labels, []
 
 def swap_perspective_augmentation(states, labels):
@@ -80,9 +86,6 @@ class DataBase:
     for aug in augmentations:
       aug_states, aug_policy_labels, val_mask = eval(aug + "_augmentation")(aug_states, aug_policy_labels)
       self.value_mask += val_mask
-
-    # Temporary:
-    aug_policy_labels = [aug.flatten() for aug in aug_policy_labels]
 
     self.states += aug_states 
     self.policy_labels += aug_policy_labels
