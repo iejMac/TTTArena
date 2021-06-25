@@ -6,7 +6,7 @@ from copy import deepcopy
 from database import prepare_state
 
 def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count):
-  c_puct = 4
+  c_puct = 6
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
   puct = child_value + c_puct * pb_c
   return puct

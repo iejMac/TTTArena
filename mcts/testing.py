@@ -152,17 +152,23 @@ class Test:
     print(f"{winner} won in {len(self.env.move_hist)} moves")
     self.env.reset()
     
-# test = Test("test_trained_model_1", "test_trained_opt_state_1", 10)
-test = Test("trained_model_1", "trained_opt_state_1", 10)
+
+test = Test("trained_model_5_1", "trained_opt_state_5_1", 10)
+# test = Test("trained_model_4_hold", "trained_opt_state_4_hold", 10)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]
 pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6)]
 pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
+pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 
+# test.play_model(player="X", num_simulations=50)
 # test.play_model(player="X", num_simulations=800)
-# test.compare_model("test_trained_model_2", "test_trained_opt_state_2", games_per_side=40, num_simulations=50, render=1, alpha=0.2)
-# test.compare_model("trained_model_1", "trained_opt_state_1", games_per_side=40, num_simulations=50, render=1, alpha=0.2)
+# test.compare_model("trained_model_4_hold", "trained_opt_state_4_hold", games_per_side=40, num_simulations=100, render=1, alpha=0.2)
+# test.compare_model("trained_model_4", "trained_opt_state_4", games_per_side=40, num_simulations=50, render=10, alpha=0.2)
+# test.compare_model("trained_model_5_0", "trained_opt_state_5_0", games_per_side=40, num_simulations=50, render=10, alpha=0.2)
 # test.human_game_evaluation("../data/30x30")
-test.visualize_model_output(pos1, True)
+# test.visualize_model_output(pos2, True)
+# test.visualize_model_output(pos2, True)
+test.visualize_model_output(pos5, True)
