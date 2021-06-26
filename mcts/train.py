@@ -17,7 +17,6 @@ model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, 
   Bugs:
 - If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)
   TODO:
-  1. Action space: add pass move which is to be played at the terminal state
   2. Consider adding T time steps in the past
   3. num_simulations should be an input to search, not the construtor of MCTS
 '''
