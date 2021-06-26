@@ -158,8 +158,7 @@ class Test:
     self.env.reset()
     
 
-test = Test("trained_model_5_1", "trained_opt_state_5_1", 10)
-# test = Test("trained_model_4_hold", "trained_opt_state_4_hold", 10)
+test = Test("trained_model_0", "trained_opt_state_0", 10)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -170,10 +169,8 @@ pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 
 # test.play_model(player="X", num_simulations=50)
 # test.play_model(player="X", num_simulations=800)
-# test.compare_model("trained_model_4_hold", "trained_opt_state_4_hold", games_per_side=40, num_simulations=100, render=1, alpha=0.2)
-# test.compare_model("trained_model_4", "trained_opt_state_4", games_per_side=40, num_simulations=50, render=10, alpha=0.2)
-# test.compare_model("trained_model_5_0", "trained_opt_state_5_0", games_per_side=40, num_simulations=50, render=10, alpha=0.2)
-# test.human_game_evaluation("../data/30x30")
+# test.compare_model("trained_model_0", "trained_opt_state_0", games_per_side=40, num_simulations=50, render=10, alpha=0.2)
+test.human_game_evaluation("../data/30x30")
+# test.visualize_model_output(pos1, True)
 # test.visualize_model_output(pos2, True)
-# test.visualize_model_output(pos2, True)
-test.visualize_model_output(pos5, True)
+# test.visualize_model_output(pos5, True)
