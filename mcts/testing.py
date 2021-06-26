@@ -17,20 +17,18 @@ class Test:
   def visualize_model_output(self, move_hist, progression=False):
     for move in move_hist:
       if progression:
-        p, pass_move, v = self.model.predict(prepare_state(self.env.board))
+        p, v = self.model.predict(prepare_state(self.env.board))
         # TODO: make a nicer visualization
         self.env.render()
         print(np.around(p, 3))
-        print(pass_move)
         print(v)
 
       self.env.step(move)
 
-    p, pass_move, v = self.model.predict(prepare_state(self.env.board))
+    p, v = self.model.predict(prepare_state(self.env.board))
 
     self.env.render()
     print(np.around(p, 3))
-    print(pass_move)
     print(v)
 
     self.env.reset()
@@ -39,7 +37,6 @@ class Test:
     games = os.listdir(data_dir)
 
     human_move_probability = 0.0
-    terminal_pass_probability = 0.0
     value_sum = 0.0
     value_mse = 0.0
     correct_terminal_state_sign = 0
@@ -64,7 +61,7 @@ class Test:
         winner = 1 if len(game_hist) % 2 != 0 else -1
 
         for move in game_hist:
-          p, pass_move, v = self.model.predict(prepare_state(self.env.board))
+          p, v = self.model.predict(prepare_state(self.env.board))
 
           # Add the probability the model would play the human move
           human_move_probability += p[move[0]][move[1]]
@@ -73,8 +70,7 @@ class Test:
 
           self.env.step(move)
 
-        p, pass_move, v = self.model.predict(prepare_state(self.env.board)) # check evaluation on terminal state
-        terminal_pass_probability += pass_move
+        p, v = self.model.predict(prepare_state(self.env.board)) # check evaluation on terminal state
         value_sum += v
         value_mse += (winner - v)**2
         correct_terminal_state_sign += (winner*v > 0)
@@ -83,7 +79,6 @@ class Test:
     print(f"Average human move probability: {human_move_probability/sum(xo_win_moves)}")
     print(f"Average position evaluation MSE: {value_mse/sum(xo_win_moves)}")
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winning position distribution: [X, O] = {xo_win_moves}")
-    print(f"Average terminal state pass move probability: {terminal_pass_probability/compatible_games}")
     print(f"Evaluated {correct_terminal_state_sign}/{compatible_games} terminal states with correct sign")
 
   def compare_model(self, opponent_name, opponent_opt_name, games_per_side, num_simulations=100, alpha=0.1, render=10):
@@ -158,9 +153,9 @@ test = Test("best_model", "best_opt_state", 10)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
-pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6), (9, 9), (5, 7)]
+pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6)]
 pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
 test.human_game_evaluation("../data/30x30")
-# test.visualize_model_output(pos2, True)
+# test.visualize_model_output(pos1, True)
