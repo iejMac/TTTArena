@@ -135,29 +135,6 @@ class DataBase:
       train_policy_labels = np.load(os.path.join(from_memory_paths[1]))
       train_value_labels = np.load(os.path.join(from_memory_paths[2]))
 
-    # TEST AUGMENTATION FOR VALUE BALANCING:
-    aug_state_array = []
-    aug_pol_array = []
-    aug_val_array = []
-    for i in range(len(train_states)):
-        aug_state_array.append(deepcopy(train_states[i]))
-        train_states[i][[0, 1]] = train_states[i][[1, 0]]
-        if train_states[i][2][0][0] == 1:
-            train_states[i][2] *= 0
-        else:
-            train_states[i][2] += 1
-        aug_state_array.append(deepcopy(train_states[i]))
-
-        aug_pol_array.append(deepcopy(train_policy_labels[i]))
-        aug_pol_array.append(deepcopy(train_policy_labels[i]))
-
-        aug_val_array.append(deepcopy(train_value_labels[i]))
-        aug_val_array.append(deepcopy(train_value_labels[i]*(-1)))
-
-    train_states = np.array(aug_state_array)
-    train_policy_labels = np.array(aug_pol_array)
-    train_value_labels = np.array(aug_val_array)
-
     # Mix up:
     perm = np.random.permutation(len(train_states))
     train_states = train_states[perm]

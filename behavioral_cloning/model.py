@@ -5,13 +5,16 @@ from collections import deque
 
 import torch
 from torch import nn
-from torch import optim
 from torch.nn import functional as F
+from torch.optim import AdamW
 
 from mcts import MCTS
 from database import DataBase
 from database import prepare_state
 from environment import Environment
+
+torch.manual_seed(80085)
+np.random.seed(80085)
 
 def softXEnt (inp, target): # temporary
   logprobs = torch.log(inp)
@@ -30,23 +33,16 @@ class IdentityBlock(nn.Module):
     self.conv2 = nn.Conv2d(F1, F2, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv3 = nn.Conv2d(F2, F1, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
 
-    # self.bn1 = nn.BatchNorm2d(F1)
-    # self.bn2 = nn.BatchNorm2d(F2)
-    # self.bn3 = nn.BatchNorm2d(F1)
-
   def forward(self, x):
     shortcut = x
 
     x = self.conv1(x)
-    # x = self.bn1(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv2(x)
-    # x = self.bn2(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv3(x)
-    # x = self.bn3(x)
     x += shortcut
     x = F.leaky_relu(x, 0.2)
 
@@ -62,28 +58,17 @@ class ConvolutionalBlock(nn.Module):
     self.conv3 = nn.Conv2d(F2, F3, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv_change = nn.Conv2d(input_dim, F3, padding=(0,0), kernel_size=1, stride=1, bias=use_bias)
 
-    # self.bn1 = nn.BatchNorm2d(F1)
-    # self.bn2 = nn.BatchNorm2d(F2)
-    # self.bn3 = nn.BatchNorm2d(F3)
-    # self.bnc = nn.BatchNorm2d(F3)
-
   def forward(self, x):
     shortcut = x
 
     x = self.conv1(x)
-    # x = self.bn1(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv2(x)
-    # x = self.bn2(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv3(x)
-    # x = self.bn3(x)
-
     shortcut = self.conv_change(shortcut)
-    # shortcut = self.bnc(shortcut)
-
     x += shortcut
     x = F.leaky_relu(x, 0.2)
 
@@ -124,6 +109,7 @@ class Brain(nn.Module):
 
     self.input_shape = input_shape
     use_bias = True
+
     self.conv1 = nn.Conv2d(input_shape[0], 16, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
     self.convolutional1 = ConvolutionalBlock(5, [24, 48, 24], 16, use_bias)
     self.identity1 = IdentityBlock(5, [24, 48], 24, use_bias)
@@ -131,12 +117,9 @@ class Brain(nn.Module):
     self.policy_head = PolicyHead(input_shape, use_bias)
     self.value_head = ValueHead(use_bias)
 
-    # self.bn1 = nn.BatchNorm2d(16)
-
   def forward(self, x):
     # Core:
     x = self.conv1(x)
-    # x = self.bn1(x)
     x = F.leaky_relu(x)
     x = self.convolutional1(x)
     x = self.identity1(x)
@@ -150,8 +133,7 @@ class ZeroTTT():
     self.brain = Brain(input_shape=(3, board_len, board_len)).to(self.device)
     self.board_len = board_len
 
-    self.optimizer = optim.AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
-    # self.optimizer = optim.SGD(self.brain.parameters(), lr=lr, momentum=0.9, weight_decay=weight_decay)
+    self.optimizer = AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
     self.value_loss = nn.MSELoss()
     self.policy_loss = softXEnt
 
@@ -211,7 +193,7 @@ class ZeroTTT():
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, alpha=0.35)
+      mcts = MCTS(self, env.board, alpha=0.25)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
