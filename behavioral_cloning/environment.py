@@ -1,90 +1,88 @@
-# Description:
-# The environment class that the agent will interact with
-
-# Imports:
-import game_mechanics as gm
-import GUI
 import numpy as np
 
+def prepare_state(state):
+  split = np.zeros((3, len(state), len(state)))
+  if np.sum(state) == 0: # x turn
+    split[-1] = np.ones((len(state), len(state)))
+  for i, row in enumerate(state):
+    for j, cell in enumerate(row):
+      if cell == 1:
+        split[0][i][j] = 1
+      elif cell == -1:
+        split[1][i][j] = 1
+  return split
 
-# Class:
+class Environment():
+  def __init__(self, board_len=30):
 
-class TTTenvironment():
-    def __init__(self):
-        self.board = gm.create_board()
-        self.move_memory = []
-        self.reward_memory = []
-        # Change so it's variable
-        self.action_space = self.board.shape
-        self.observation_space = self.board.shape
-        # Optimization variables:
-        # 1. Storing previous evaluation so I don't evaluate each position twice:
-        self.evaluation_memory = None
+    self.board_len = board_len
+    self.board = np.zeros((board_len, board_len))
 
-    def reset(self):
-        self.board = gm.create_board()
-        self.move_memory = []
-        self.reward_memory = []
-        self.evaluation_memory = None
-        obs = self.board
-        return obs
+    self.x_token = 1
+    self.o_token = -1
 
-    def step(self, player, action, random_action):
-        # Remember (player, move):
-        self.move_memory.append((player, action, random_action))
+    self.turn = self.x_token # x starts
 
-        gm.select_space(board=self.board, player=player, position=action)
+    self.move_hist = []
 
-        # Observation:
-        obs = self.board
+  def reset(self):
+    self.board = np.zeros((self.board_len, self.board_len))
+    self.move_hist = []
+    self.turn = self.x_token
+    return
 
-        # Reward:
-        reward = 0
+  def step(self, action, override_turn=None):
 
-        over = gm.game_over(self.board)
+    if override_turn is not None:
+      self.board[action[0]][action[1]] = override_turn
+      self.move_hist.append((action, override_turn))
+      return
 
-        # Done:
-        done = False if over == -1 else True
+    self.board[action[0]][action[1]] = self.turn
+    self.move_hist.append((action, self.turn))
+    self.turn *= -1 # turn swaps
+    return self.game_over()
 
-        winner = None
+  def game_over(self):
+    win = np.ones(5)
+    win_diag = np.identity(5)
 
-        if done:
-            if over == 2:
-                winner = 'X'
-            else:
-                winner = 'O'
+    for i in range(len(self.board)):
+      for j in range(len(self.board[i]) - len(win) + 1):
 
-        # Remember (player, reward):
-        self.reward_memory.append((player, reward))
+        similarity = np.sum(win * self.board[i][j : j + len(win)])
+        similarity_t = np.sum(win * self.board.T[i][j : j + len(win)])
 
-        # Info:
-        info = winner
+        if similarity ==  5 or similarity_t == 5:
+          return 1
+        elif similarity ==  -5 or similarity_t == -5:
+          return -1
 
-        return obs, reward, done, info
+    for i in range(len(self.board) - len(win) + 1):
+      for j in range(len(self.board[i]) - len(win) + 1):
 
-    def render(self, speed=500, show_randomness=False):
-        # Hard to do this with online stream of moves so after each game render will replay the game with
-        # a time delay between moves
-        GUI.play_game(mode='render', memory=self.move_memory, speed=speed, show_randomness=show_randomness)
-        return
+        similarity = np.sum(win_diag * self.board[i : i+len(win_diag), j : j +len(win_diag)])
+        similarity_t = np.sum(np.rot90(win_diag) * self.board[i : i+len(win_diag), j : j +len(win_diag)])
 
+        if similarity ==  5 or similarity_t == 5:
+          return 1
+        elif similarity ==  -5 or similarity_t == -5:
+          return -1
+    
+    if np.any(self.board == 0) is False: # draw
+      return 0
 
-# Functions:
+    return 10
 
-def discount_reward(rewards, discount_rate):
-    discounted_rewards = np.empty(len(rewards))
-    cumulative_rewards = 0
-    for step in reversed(range(len(rewards))):
-        cumulative_rewards = rewards[step] + cumulative_rewards * discount_rate
-        discounted_rewards[step] = cumulative_rewards
-    return discounted_rewards
-
-
-def discount_and_normalize_rewards(all_rewards, discount_rate):
-    all_discounted_rewards = [discount_reward(rewards, discount_rate) for rewards in all_rewards]
-    flat_rewards = np.concatenate(all_discounted_rewards)
-    reward_mean = flat_rewards.mean()
-    reward_std = flat_rewards.std()
-    return [(discounted_rewards - reward_mean)/reward_std for discounted_rewards in all_discounted_rewards]
-
-
+  def render(self):
+    show_board = np.full((self.board_len, self.board_len), ' ')
+    for move in self.move_hist:
+      action, turn = move
+      if turn == 1:
+        show_board[action[0]][action[1]] = 'X'
+      else:
+        show_board[action[0]][action[1]] = 'O'
+    print("="*120)    
+    print(show_board)
+    print("="*120)    
+    return
