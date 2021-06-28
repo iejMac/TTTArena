@@ -213,6 +213,7 @@ class ZeroTTT():
         if (game_nr+1) % render == 0:
           env.render()
 
+      mcts.search(num_simulations=num_simulations) # search before so label isn't complete nonsense
       database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
       print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
