@@ -1,4 +1,3 @@
-import time
 import math
 import random
 import numpy as np
@@ -46,10 +45,8 @@ class MCTS():
       self.Ps[rs][i] = (move, (1 - self.alpha) * prob + dirichlet[i] * self.alpha)
 
   def search(self, num_simulations): # builds the search tree from the root node
-    t0 = time.time()
     for i in range(num_simulations):
       self.find_leaf(deepcopy(self.root))
-    print(f"Time: {time.time() - t0}")
     return
 
   def find_leaf(self, state):
