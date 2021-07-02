@@ -17,7 +17,7 @@ class Test:
   def visualize_model_output(self, move_hist, progression=False):
     for move in move_hist:
       if progression:
-        p, v = self.model.predict(prepare_state(self.env.board))
+        p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
         # TODO: make a nicer visualization
         self.env.render()
         print(np.around(p, 3))
@@ -25,8 +25,8 @@ class Test:
 
       self.env.step(move)
 
-    p, v = self.model.predict(prepare_state(self.env.board))
-
+    p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
+ 
     self.env.render()
     print(np.around(p, 3))
     print(v)
@@ -61,7 +61,7 @@ class Test:
         winner = 1 if len(game_hist) % 2 != 0 else -1
 
         for move in game_hist:
-          p, v = self.model.predict(prepare_state(self.env.board))
+          p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
 
           # Add the probability the model would play the human move
           human_move_probability += p[move[0]][move[1]]
@@ -70,7 +70,7 @@ class Test:
 
           self.env.step(move)
 
-        p, v = self.model.predict(prepare_state(self.env.board)) # check evaluation on terminal state
+        p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board)) # check evaluation on terminal state
         value_sum += v
         value_mse += (winner - v)**2
         correct_terminal_state_sign += (winner*v > 0)
@@ -148,8 +148,8 @@ class Test:
     self.env.reset()
     
 test = Test("best_model", "best_opt_state", 10)
-# test.compare_model("random_model", "random_opt_state", games_per_side=2, num_simulations=50, render=1)
-# test.play_model()
+# test.compare_model(None, None, games_per_side=10, num_simulations=100, render=1, alpha=0.1)
+# test.play_model(player="O")
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -157,5 +157,5 @@ pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6)]
 pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
-test.human_game_evaluation("../data/30x30")
+# test.human_game_evaluation("../data/30x30")
 # test.visualize_model_output(pos1, True)

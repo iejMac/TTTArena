@@ -3,13 +3,8 @@ from model import ZeroTTT
 # model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
 model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-4, board_len=10)
 
-print(model.get_parameter_count())
-print(sum(p.numel() for p in model.brain.policy_head.parameters() if p.requires_grad))
-print(sum(p.numel() for p in model.brain.value_head.parameters() if p.requires_grad))
-
-# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300000, positions_per_learn=100000, batch_size=40)
-# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40, generate_buffer_path="./replay_buffer")
-model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40)
+model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=600, positions_per_learn=100, batch_size=40)
+# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40)
 
 
 

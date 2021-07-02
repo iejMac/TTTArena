@@ -3,10 +3,22 @@ import numpy as np
 from copy import deepcopy
 from collections import deque
 
+'''
 def prepare_state(state):
   split = np.zeros((3, len(state), len(state)))
   if np.sum(state) == 0: # x turn
     split[-1] = np.ones((len(state), len(state)))
+  for i, row in enumerate(state):
+    for j, cell in enumerate(row):
+      if cell == 1:
+        split[0][i][j] = 1
+      elif cell == -1:
+        split[1][i][j] = 1
+  return split
+'''
+
+def prepare_state(state):
+  split = np.zeros((2, len(state), len(state)))
   for i, row in enumerate(state):
     for j, cell in enumerate(row):
       if cell == 1:
@@ -88,8 +100,21 @@ class DataBase:
     self.policy_labels += aug_policy_labels
     self.augmentation_coefficient = len(aug_states)
 
+  '''
   def append_value(self, winner, game_length):
     val_labs = [winner]*((game_length + 1)*self.augmentation_coefficient)
+    if len(self.value_mask) == len(val_labs):
+      val_labs = [val_labs[i] * self.value_mask[i] for i in range(len(val_labs))]
+      self.value_mask = []
+    self.value_labels += val_labs
+  '''
+
+  def append_value(self, winner, game_length):
+    val_labs = []
+    offset = (-1.0)**(winner == -1.0)
+    for i in range(game_length + 1):
+      val_labs += [offset * (-1.0)**(i%2 == 1)] * self.augmentation_coefficient
+
     if len(self.value_mask) == len(val_labs):
       val_labs = [val_labs[i] * self.value_mask[i] for i in range(len(val_labs))]
       self.value_mask = []
