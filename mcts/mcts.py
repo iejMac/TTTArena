@@ -8,12 +8,6 @@ from database import prepare_state
 np.random.seed(80085)
 random.seed(80085)
 
-'''
-Tasks:
-1. Implement iterative search without Node and Edge classes
-2. Try to add a quick way of figuring out if the state is terminal and automatically return -1 or +1 rather than consulting the model (should provide a performance boost but not elegant)
-'''
-
 def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count, c_puct):
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)
   return child_value + c_puct * pb_c
