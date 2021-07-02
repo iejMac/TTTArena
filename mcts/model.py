@@ -1,5 +1,4 @@
 import os
-import time
 import numpy as np
 from copy import deepcopy
 from collections import deque
@@ -185,8 +184,6 @@ class ZeroTTT():
     save them to a replay_buffer at the given path to train on later in separate algorithm.
     '''
 
-    t0 = time.time()
-    
     database = DataBase(max_len=max_position_storage)
 
     positions_to_next_learn = positions_per_learn
@@ -196,7 +193,7 @@ class ZeroTTT():
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, alpha=0.25)
+      mcts = MCTS(self, deepcopy(env.board), c_puct=4, alpha=0.25)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
@@ -256,5 +253,3 @@ class ZeroTTT():
         positions_to_next_learn = positions_per_learn
 
       env.reset()
-
-    print(f"Time: {time.time() - t0}")
