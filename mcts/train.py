@@ -1,10 +1,10 @@
 from model import ZeroTTT
 
-model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", lr=3e-4, board_len=10)
+model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-4, board_len=10)
 
 # model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300000, positions_per_learn=100000, batch_size=40)
-# model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40, generate_buffer_path="./replay_buffer")
-model.self_play(n_games=1000, num_simulations=400, render=1200, training_epochs=0, max_position_storage=10000, positions_per_learn=30000, batch_size=40, generate_buffer_path="/storage/replay_buffer")
+# model.self_play(n_games=1000, num_simulations=100, render=10, training_epochs=1, max_position_storage=3000, positions_per_learn=1000, batch_size=100)
+model.self_play(n_games=1000, num_simulations=200, render=1200, training_epochs=0, max_position_storage=10000, positions_per_learn=30000, batch_size=40, generate_buffer_path="/storage/replay_buffer")
 
 '''
   Bugs:
