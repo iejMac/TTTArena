@@ -26,10 +26,10 @@ class Test:
       self.env.step(move)
 
     p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
- 
     self.env.render()
     print(np.around(p, 3))
     print(v)
+    print(f"{'X' if self.env.turn == 1 else 'O'}'s turn to move") 
 
     self.env.reset()
 
@@ -38,8 +38,8 @@ class Test:
 
     human_move_probability = 0.0
     value_sum = 0.0
-    xo_certainty = [0.0, 0.0]
-    xo_certainty_count = [0, 0]
+    wl_certainty = [0.0, 0.0]
+    wl_certainty_count = [0, 0]
     value_mse = 0.0
     correct_terminal_state_sign = 0
     xo_win_moves = [0, 0]
@@ -66,23 +66,23 @@ class Test:
           p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
 
           # Add the probability the model would play the human move
-          human_move_probability += p[move[0]][move[1]]
+          human_move_probability += p[move]
           value_sum += v
-          xo_certainty[v < 0.0] += abs(v)
-          xo_certainty_count[v < 0.0] += 1
-          value_mse += (winner - v)**2
+          wl_certainty[v < 0.0] += abs(v)
+          wl_certainty_count[v < 0.0] += 1
+          value_mse += (winner*((-1)**(self.env.turn == -1)) - v)**2
 
           self.env.step(move)
 
         p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board)) # check evaluation on terminal state
         value_sum += v
-        value_mse += (winner - v)**2
-        correct_terminal_state_sign += (winner*v > 0)
+        value_mse += (winner*((-1)**(self.env.turn == -1)) - v)**2
+        correct_terminal_state_sign += (v < 0)
 
         self.env.reset()
     print(f"Average human move probability: {human_move_probability/sum(xo_win_moves)}")
     print(f"Average position evaluation MSE: {value_mse/sum(xo_win_moves)}")
-    print(f"Average evaluation certainty: [X, O] = {xo_certainty[0]/(xo_certainty_count[0]+0.1)}, {xo_certainty[1]/(xo_certainty_count[1]+0.1)}")
+    print(f"Average evaluation certainty: [W, L] = {wl_certainty[0]/(wl_certainty_count[0]+0.1)}, {wl_certainty[1]/(wl_certainty_count[1]+0.1)}")
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winning position distribution: [X, O] = {xo_win_moves}")
     print(f"Evaluated {correct_terminal_state_sign}/{compatible_games} terminal states with correct sign")
 
