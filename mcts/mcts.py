@@ -22,7 +22,7 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count, 
 class MCTS():
   def __init__(self, model, root_state, c_puct=4, alpha=0.25):
     self.model = model
-    self.root = root_state
+    self.root = deepcopy(root_state)
     self.alpha = alpha
     self.c_puct = c_puct
 
