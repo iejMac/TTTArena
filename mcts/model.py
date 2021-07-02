@@ -211,7 +211,7 @@ class ZeroTTT():
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, alpha=0.35)
+      mcts = MCTS(self, env.board, alpha=0.25)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
@@ -230,7 +230,8 @@ class ZeroTTT():
 
         if (game_nr+1) % render == 0:
           env.render()
-
+      
+      mcts.search(num_simulations=num_simulations) # search before so label isnt complete nonsense
       database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
       print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 

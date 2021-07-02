@@ -1,7 +1,6 @@
 import os
 import numpy as np
 
-from mcts import MCTS
 from model import ZeroTTT
 from database import prepare_state
 from environment import Environment
@@ -20,7 +19,7 @@ class Test:
         p, v = self.model.predict(prepare_state(self.env.board))
         # TODO: make a nicer visualization
         self.env.render()
-        print(np.around(p, 3))
+        print(np.around(p, 1))
         print(v)
 
       self.env.step(move)
@@ -73,6 +72,7 @@ class Test:
           value_mse += (winner - v)**2
 
           self.env.step(move)
+
         p, v = self.model.predict(prepare_state(self.env.board)) # check evaluation on terminal state
         value_sum += v
         value_mse += (winner - v)**2
@@ -85,73 +85,8 @@ class Test:
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winning position distribution: [X, O] = {xo_win_moves}")
     print(f"Evaluated {correct_terminal_state_sign}/{compatible_games} terminal states with correct sign")
 
-  def compare_model(self, opponent_name, opponent_opt_name, games_per_side, num_simulations=100, alpha=0.1, render=10):
-    opponent = ZeroTTT(brain_path=opponent_name, opt_path=opponent_opt_name)
-    xo_wins = [0, 0]
 
-    for game_nr in range(2*games_per_side):
-      print(f"Game {game_nr+1}...")
-      mcts_self = MCTS(self.model, self.env.board, alpha=alpha)
-      mcts_opponent = MCTS(opponent, self.env.board, alpha=alpha)
-      tau = 0.01 # no exploration
-
-      current_player, waiting_player = (mcts_self, mcts_opponent) if game_nr % 2 == 0 else (mcts_opponent, mcts_self)
-      game_state = 10
-
-      while game_state == 10:
-        current_player.search(num_simulations)
-        move = current_player.select_move(tau=tau) # current player selects the move
-        waiting_player.select_move(external_move=move) # waiting player updates their mcts to reflect selected move
-
-        game_state = self.env.step(move)
-        current_player, waiting_player = waiting_player, current_player
-        if (game_nr + 1) % render == 0:
-          self.env.render()
-
-      winning_player = "Model" if waiting_player == mcts_self else "Opponent"
-      winning_token = 'X' if game_state == 1 else 'O'
-      if game_state == 0:
-        print(f"It was a tie")
-      else:
-        print(f"{winning_player} won as {winning_token}")
-        if winning_player == "Model":
-          xo_wins[winning_token == "O"] += 1
-
-      print(f"Move count: {len(self.env.move_hist)}")
-      self.env.reset()
-
-    print(f"Model won {xo_wins[0]}/{games_per_side} games as X ({100*(xo_wins[0]/games_per_side)}%)")      
-    print(f"Model won {xo_wins[1]}/{games_per_side} games as O ({100*(xo_wins[1]/games_per_side)}%)")      
-
-  def play_model(self, player="X", num_simulations=100, alpha=0.1):
-    mcts = MCTS(self.model, self.env.board, alpha=alpha)
-    game_state = 10
-    tau = 0.01
-    turn = 1 if player == "X" else -1 # your move vs model move
-
-    self.env.render()
-
-    while game_state == 10:
-      if turn == 1:
-        move_str = input("Input a move y, x: ")
-        move = tuple(int(x) for x in move_str.split(","))
-        mcts.select_move(external_move=move)
-      else:
-        mcts.search(num_simulations=num_simulations)
-        move = mcts.select_move(tau=tau)
-
-      game_state = self.env.step(move)
-      turn *= -1
-
-      self.env.render()
-
-    # TODO: hack assumes, no ties
-    winning_token = "X" if game_state == 1 else "O"
-    winner = "You" if winning_token == player else "Model"
-    print(f"{winner} won in {len(self.env.move_hist)} moves")
-    self.env.reset()
-    
-test = Test("trained_model_5_1", "trained_opt_state_5_1", 10) 
+test = Test("trained_model_0_0", "trained_opt_state_0_0", 10)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -161,11 +96,9 @@ pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 
 # test.play_model(player="X", num_simulations=50)
-test.play_model(player="X", num_simulations=800)
-# test.compare_model("trained_model_4", "trained_opt_state_4", games_per_side=40, num_simulations=50, render=20, alpha=0.4)
+# test.play_model(player="X", num_simulations=800)
+# test.compare_model("trained_model_0", "trained_opt_state_0", games_per_side=40, num_simulations=50, render=10, alpha=0.2)
 # test.human_game_evaluation("../data/30x30")
-# test.visualize_model_output(pos1, False)
-# test.visualize_model_output(pos2, False)
-# test.visualize_model_output(pos3, False)
-# test.visualize_model_output(pos4, False)
-# test.visualize_model_output(pos5, False)
+test.visualize_model_output(pos1, True)
+test.visualize_model_output(pos2, True)
+test.visualize_model_output(pos5, True)
