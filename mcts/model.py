@@ -175,7 +175,6 @@ class ZeroTTT():
     return
 
   def predict(self, x, interpret_output=True):
-
     if len(x.shape) < 4:
       x = np.expand_dims(x, axis=0)
 
@@ -187,7 +186,6 @@ class ZeroTTT():
       policy = policy.view(-1, self.board_len, self.board_len)
       policy = policy[0].cpu().detach().numpy()
       value = value[0][0].item()
-
     return policy, value
 
   def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, max_position_storage=100, batch_size=20, render=10, generate_buffer_path=None):
