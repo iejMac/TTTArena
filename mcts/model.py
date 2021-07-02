@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 from copy import deepcopy
 from collections import deque
@@ -183,6 +184,8 @@ class ZeroTTT():
     generate_buffer_path : if passed a path in string form, self-play will just generate games and
     save them to a replay_buffer at the given path to train on later in separate algorithm.
     '''
+
+    t0 = time.time()
     
     database = DataBase(max_len=max_position_storage)
 
@@ -253,3 +256,5 @@ class ZeroTTT():
         positions_to_next_learn = positions_per_learn
 
       env.reset()
+
+    print(f"Time: {time.time() - t0}")

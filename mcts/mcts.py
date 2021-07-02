@@ -155,8 +155,4 @@ class MCTS():
       if self.root.state[child.action[0]][child.action[1]] == 0.0:
         child.P = (1 - self.alpha)*child.P + dirichlet[i] * self.alpha
 
-    child_sum = sum([c.P for c in self.root.children]) # re-normalize because we don't add dirichlet to all children
-    for child in self.root.children:
-      child.P /= child_sum
-
     return chosen.action
