@@ -199,7 +199,7 @@ class ZeroTTT():
     generate_buffer_path : if passed a path in string form, self-play will just generate games and
     save them to a replay_buffer at the given path to train on later in separate algorithm.
     '''
-    
+
     database = DataBase(max_len=max_position_storage)
 
     positions_to_next_learn = positions_per_learn
@@ -209,7 +209,7 @@ class ZeroTTT():
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, alpha=0.25)
+      mcts = MCTS(self, env.board, c_puct=4, alpha=0.25)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
