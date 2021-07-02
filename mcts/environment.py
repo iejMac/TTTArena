@@ -1,17 +1,5 @@
 import numpy as np
 
-def prepare_state(state):
-  split = np.zeros((3, len(state), len(state)))
-  if np.sum(state) == 0: # x turn
-    split[-1] = np.ones((len(state), len(state)))
-  for i, row in enumerate(state):
-    for j, cell in enumerate(row):
-      if cell == 1:
-        split[0][i][j] = 1
-      elif cell == -1:
-        split[1][i][j] = 1
-  return split
-
 class Environment():
   def __init__(self, board_len=30):
 

@@ -6,7 +6,6 @@ model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", lr
 # model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40, generate_buffer_path="./replay_buffer")
 model.self_play(n_games=1000, num_simulations=400, render=1200, training_epochs=0, max_position_storage=10000, positions_per_learn=30000, batch_size=40, generate_buffer_path="/storage/replay_buffer")
 
-
 '''
   Bugs:
 - If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)

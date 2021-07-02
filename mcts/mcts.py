@@ -21,10 +21,6 @@ class Node():
     return (len(self.children) == 0)
 
   def expand(self, model):
-
-    if self.is_leaf_node() is False: # safety so a node doesn't double its children
-      return
-
     p_vals, value = model.predict(prepare_state(self.state))
 
     for i, row in enumerate(p_vals):
@@ -41,10 +37,11 @@ class Node():
 
     # Quick experiment:
     random.shuffle(self.children)
-
+    '''
     reverse_value = np.sum(self.state) == 0 # this means this state is after an O move
     return ((-1.0)**reverse_value)*value # negative value because this is evaluated from the position of the opposite player
-    # return value
+    '''
+    return (-1.0)*value
 
   def find_leaf(self, model):
 
@@ -81,17 +78,18 @@ class Edge():
 
   def initialize_node(self, state): # destination node doesn't need to be initialized all the time, only if we're actually going to use it
     next_state = deepcopy(state)
-    turn = (-1)**(np.sum(next_state) > 0)
+    # turn = (-1)**(np.sum(next_state) > 0)
+    turn = 1
     next_state[self.action[0]][self.action[1]] = turn
-    # self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
-    self.node = Node(next_state)
+    self.node = Node(next_state * (-1)) # multiply state by -1 to swap to opposite perspective
+    # self.node = Node(next_state)
     return
 
   def traverse(self, state, model):
     if self.node is None:
       self.initialize_node(state)
 
-    v =  self.node.find_leaf(model)
+    v = self.node.find_leaf(model)
 
     self.N += 1
     self.W += v

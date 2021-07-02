@@ -17,7 +17,7 @@ class Test:
   def visualize_model_output(self, move_hist, progression=False):
     for move in move_hist:
       if progression:
-        p, v = self.model.predict(prepare_state(self.env.board))
+        p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
         # TODO: make a nicer visualization
         self.env.render()
         print(np.around(p, 3))
@@ -25,8 +25,8 @@ class Test:
 
       self.env.step(move)
 
-    p, v = self.model.predict(prepare_state(self.env.board))
-
+    p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
+ 
     self.env.render()
     print(np.around(p, 3))
     print(v)
@@ -63,7 +63,7 @@ class Test:
         winner = 1 if len(game_hist) % 2 != 0 else -1
 
         for move in game_hist:
-          p, v = self.model.predict(prepare_state(self.env.board))
+          p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
 
           # Add the probability the model would play the human move
           human_move_probability += p[move[0]][move[1]]
@@ -73,7 +73,8 @@ class Test:
           value_mse += (winner - v)**2
 
           self.env.step(move)
-        p, v = self.model.predict(prepare_state(self.env.board)) # check evaluation on terminal state
+
+        p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board)) # check evaluation on terminal state
         value_sum += v
         value_mse += (winner - v)**2
         correct_terminal_state_sign += (winner*v > 0)

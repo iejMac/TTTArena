@@ -147,7 +147,7 @@ class Brain(nn.Module):
 class ZeroTTT():
   def __init__(self, brain_path=None, opt_path=None, board_len=10, lr=3e-4, weight_decay=0.0):
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    self.brain = Brain(input_shape=(3, board_len, board_len)).to(self.device)
+    self.brain = Brain(input_shape=(2, board_len, board_len)).to(self.device)
     self.board_len = board_len
 
     self.optimizer = optim.AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
@@ -223,16 +223,16 @@ class ZeroTTT():
           tau = 0.01
 
         mcts.search(num_simulations=num_simulations)
-        database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"])
+        database.append_policy((-1)**(env.turn == -1)*env.board, mcts.get_pi(), augmentations=["flip", "rotate"])
 
         move = mcts.select_move(tau=tau)
         game_state = env.step(move)
 
         if (game_nr+1) % render == 0:
           env.render()
-      
-      mcts.search(num_simulations=num_simulations) # search before so label isnt complete nonsense
-      database.append_policy(env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
+
+      mcts.search(num_simulations=num_simulations) # search before so label isn't complete nonsense
+      database.append_policy((-1)**(env.turn == -1)*env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
       print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
       database.append_value(game_state, len(env.move_hist))
