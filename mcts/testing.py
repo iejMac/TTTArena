@@ -26,10 +26,10 @@ class Test:
       self.env.step(move)
 
     p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
- 
     self.env.render()
     print(np.around(p, 3))
     print(v)
+    print(f"{'X' if self.env.turn == 1 else 'O'}'s turn to move") 
 
     self.env.reset()
 
@@ -64,16 +64,16 @@ class Test:
           p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
 
           # Add the probability the model would play the human move
-          human_move_probability += p[move[0]][move[1]]
+          human_move_probability += p[move]
           value_sum += v
-          value_mse += (winner - v)**2
+          value_mse += (winner*((-1)**(self.env.turn == -1)) - v)**2
 
           self.env.step(move)
 
         p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board)) # check evaluation on terminal state
         value_sum += v
-        value_mse += (winner - v)**2
-        correct_terminal_state_sign += (winner*v > 0)
+        value_mse += (winner*((-1)**(self.env.turn == -1)) - v)**2
+        correct_terminal_state_sign += (v < 0)
 
         self.env.reset()
     print(f"Average human move probability: {human_move_probability/sum(xo_win_moves)}")
@@ -158,4 +158,4 @@ pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
 # test.human_game_evaluation("../data/30x30")
-# test.visualize_model_output(pos1, True)
+test.visualize_model_output(pos1, True)
