@@ -1,10 +1,29 @@
 from model import ZeroTTT
 
-# model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
-model = ZeroTTT(brain_path=None, opt_path=None, lr=3e-4, board_len=10)
+model_args = {
+  "board_len": 10,
+  "lr": 1e-4,
+  "weight_decay": 3e-4
+}
 
-model.self_play(n_games=1, num_simulations=2000, render=1200, training_epochs=1, max_position_storage=60000, positions_per_learn=10000, batch_size=40)
-# model.self_play(n_games=1000, num_simulations=100, render=3, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40)
+mcts_args = {
+  "num_simulations": 100,
+  "alpha": 0.25,
+  "c_puct": 4,
+  "dirichlet_alpha": 0.3
+}
+
+args = {
+  "model": model_args,
+  "mcts": mcts_args
+}
+
+
+# model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
+model = ZeroTTT(brain_path=None, opt_path=None, args=args)
+
+# model.self_play(n_games=1, num_simulations=2000, render=1, training_epochs=1, max_position_storage=60000, positions_per_learn=10000, batch_size=40)
+model.self_play(n_games=1000, num_simulations=100, render=3, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40)
 
 
 

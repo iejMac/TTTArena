@@ -149,7 +149,7 @@ class Test:
     
 test = Test("best_model", "best_opt_state", 10)
 # test.compare_model(None, None, games_per_side=10, num_simulations=100, render=1, alpha=0.1)
-# test.play_model(player="O")
+test.play_model(player="O")
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -158,4 +158,4 @@ pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
 # test.human_game_evaluation("../data/30x30")
-test.visualize_model_output(pos1, True)
+# test.visualize_model_output(pos1, True)

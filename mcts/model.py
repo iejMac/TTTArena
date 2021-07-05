@@ -128,12 +128,13 @@ class Brain(nn.Module):
     return p, v
 
 class ZeroTTT():
-  def __init__(self, brain_path=None, opt_path=None, board_len=10, lr=3e-4, weight_decay=0.0):
+  def __init__(self, brain_path, opt_path, args):
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    self.brain = Brain(input_shape=(2, board_len, board_len)).to(self.device)
-    self.board_len = board_len
+    self.args = args["model"]
+    self.mcts_args = args["mcts"]
+    self.brain = Brain(input_shape=(2, self.args["board_len"], self.args["board_len"])).to(self.device)
 
-    self.optimizer = AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
+    self.optimizer = AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
     self.value_loss = nn.MSELoss()
     self.policy_loss = softXEnt
 
@@ -165,7 +166,7 @@ class ZeroTTT():
     policy, value = self.brain(x)
 
     if interpret_output: # return 2d policy map and value in usable form
-      policy = policy.view(-1, self.board_len, self.board_len)
+      policy = policy.view(-1, self.args["board_len"], self.args["board_len"])
       policy = policy[0].cpu().detach().numpy()
       value = value[0][0].item()
     return policy, value
@@ -186,12 +187,12 @@ class ZeroTTT():
 
     positions_to_next_learn = positions_per_learn
 
-    env = Environment(board_len=self.board_len)
+    env = Environment(board_len=self.args["board_len"])
 
     for game_nr in range(n_games):
       
       self.brain.eval()
-      mcts = MCTS(self, env.board, c_puct=4, alpha=0.25)
+      mcts = MCTS(self, env.board, self.mcts_args)
       tau = 1.0
 
       print(f"Game {game_nr+1}...")
