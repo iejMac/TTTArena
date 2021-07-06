@@ -16,7 +16,7 @@ from environment import Environment
 torch.manual_seed(80085)
 np.random.seed(80085)
 
-def softXEnt (inp, target): # temporary
+def softXEnt (inp, target):
   logprobs = torch.log(inp)
   cross_entropy = -(target * logprobs).sum() / inp.shape[0]
   return cross_entropy
@@ -118,7 +118,6 @@ class Brain(nn.Module):
     self.value_head = ValueHead(use_bias)
 
   def forward(self, x):
-    # Core:
     x = self.conv1(x)
     x = F.leaky_relu(x)
     x = self.convolutional1(x)
@@ -128,19 +127,28 @@ class Brain(nn.Module):
     return p, v
 
 class ZeroTTT():
-  def __init__(self, brain_path, opt_path, args):
+  def __init__(self, brain_path, opt_path, args={"board_len": 10, "lr": 3e-4, "weight_decay": 1e-4}):
+    '''
+      brain_path - path to model params
+      opt_path - path to optimizer state
+
+      args:
+        board_len - # of rows and columns on board
+        lr - learning rate
+        weight_decay - weight decay
+    '''
+    self.args = args
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    self.args = args["model"]
-    self.mcts_args = args["mcts"]
     self.brain = Brain(input_shape=(2, self.args["board_len"], self.args["board_len"])).to(self.device)
 
-    self.optimizer = AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
-    self.value_loss = nn.MSELoss()
     self.policy_loss = softXEnt
+    self.value_loss = nn.MSELoss()
+    self.optimizer = AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
 
     if brain_path is not None:
       self.load_brain(brain_path, opt_path)
 
+  # TODO: fix for nested Modules
   def get_parameter_count(self):
     return sum(p.numel() for p in self.brain.parameters() if p.requires_grad)
 
@@ -170,85 +178,3 @@ class ZeroTTT():
       policy = policy[0].cpu().detach().numpy()
       value = value[0][0].item()
     return policy, value
-
-  def self_play(self, n_games=1, num_simulations=100, training_epochs=1, positions_per_learn=100, max_position_storage=100, batch_size=20, render=10, generate_buffer_path=None):
-    '''
-    num_simulations : limit leaf expansions for monte-carlo rollouts
-
-    max_position_storage : maximum amount of positions stored in RAM
-
-    positions_per_learn : train model every time this many positions are added to buffer
-
-    generate_buffer_path : if passed a path in string form, self-play will just generate games and
-    save them to a replay_buffer at the given path to train on later in separate algorithm.
-    '''
-
-    database = DataBase(max_len=max_position_storage)
-
-    positions_to_next_learn = positions_per_learn
-
-    env = Environment(board_len=self.args["board_len"])
-
-    for game_nr in range(n_games):
-      
-      self.brain.eval()
-      mcts = MCTS(self, env.board, self.mcts_args)
-      tau = 1.0
-
-      print(f"Game {game_nr+1}...")
-      game_state = 10
-
-      while game_state == 10:
-
-        if len(env.move_hist) > 30: # after 30 moves no randomness
-          tau = 0.01
-
-        mcts.search(num_simulations=num_simulations)
-        database.append_policy((-1)**(env.turn == -1)*env.board, mcts.get_pi(), augmentations=["flip", "rotate"])
-
-        move = mcts.select_move(tau=tau)
-        game_state = env.step(move)
-
-        if (game_nr+1) % render == 0:
-          env.render()
-
-      mcts.search(num_simulations=num_simulations) # search before so label isn't complete nonsense
-      database.append_policy((-1)**(env.turn == -1)*env.board, mcts.get_pi(), augmentations=["flip", "rotate"]) # append terminal state
-      print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
-
-      database.append_value(game_state, len(env.move_hist))
-      positions_to_next_learn -= (len(env.move_hist)+1)*database.augmentation_coefficient
-
-      if database.is_full() and generate_buffer_path is not None:
-        database.save_data(generate_buffer_path)
-        database.clear()
-      elif database.is_full() and positions_to_next_learn <= 0: # learn
-        self.brain.train()
-        print(f"Training on {len(database.states)} positions...")
-
-        batched_sts, batched_pls, batched_vls = database.prepare_batches(batch_size)
-
-        for e in range(training_epochs):
-          for j in range(len(batched_sts)):
-            self.optimizer.zero_grad()
-
-            batch_st, batch_pl, batch_vl = batched_sts[j], batched_pls[j], batched_vls[j]
-
-            batch_pl = torch.from_numpy(batch_pl).to(self.device)
-            batch_vl = torch.from_numpy(batch_vl).float().to(self.device)
-            prob, val = self.predict(batch_st, interpret_output=False)
-            val = val.flatten()
-
-            p_loss = self.policy_loss(prob, batch_pl)
-            v_loss = self.value_loss(val, batch_vl)
-
-            loss = p_loss + v_loss
-            loss.backward()
-    
-            self.optimizer.step()
-  
-        # Save after training step
-        self.save_brain('best_model', 'best_opt_state')
-        positions_to_next_learn = positions_per_learn
-
-      env.reset()

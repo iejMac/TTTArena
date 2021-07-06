@@ -81,21 +81,27 @@ class Test:
     print(f"Average postition evaluation: {value_sum/sum(xo_win_moves)} for winning position distribution: [X, O] = {xo_win_moves}")
     print(f"Evaluated {correct_terminal_state_sign}/{compatible_games} terminal states with correct sign")
 
-  def compare_model(self, opponent_name, opponent_opt_name, games_per_side, num_simulations=100, alpha=0.1, render=10):
+  def compare_model(self, opponent_name, opponent_opt_name, games_per_side, render=10,
+    mcts_args={
+      "num_simulations": 100,
+      "dirichlet_alpha": 0.3,
+      "alpha": 0.1,
+      "c_puct": 4
+    }):
     opponent = ZeroTTT(brain_path=opponent_name, opt_path=opponent_opt_name)
     xo_wins = [0, 0]
 
     for game_nr in range(2*games_per_side):
       print(f"Game {game_nr+1}...")
-      mcts_self = MCTS(self.model, self.env.board, alpha=alpha)
-      mcts_opponent = MCTS(opponent, self.env.board, alpha=alpha)
+      mcts_self = MCTS(self.model, self.env.board, mcts_args)
+      mcts_opponent = MCTS(opponent, self.env.board, mcts_args)
       tau = 0.01 # no exploration
 
       current_player, waiting_player = (mcts_self, mcts_opponent) if game_nr % 2 == 0 else (mcts_opponent, mcts_self)
       game_state = 10
 
       while game_state == 10:
-        current_player.search(num_simulations)
+        current_player.search()
         move = current_player.select_move(tau=tau) # current player selects the move
         waiting_player.select_move(external_move=move) # waiting player updates their mcts to reflect selected move
 
@@ -119,8 +125,15 @@ class Test:
     print(f"Model won {xo_wins[0]}/{games_per_side} games as X ({100*(xo_wins[0]/games_per_side)}%)")      
     print(f"Model won {xo_wins[1]}/{games_per_side} games as O ({100*(xo_wins[1]/games_per_side)}%)")      
 
-  def play_model(self, player="X", num_simulations=100, alpha=0.1):
-    mcts = MCTS(self.model, self.env.board, alpha=alpha)
+  def play_model(self, player="X",
+    mcts_args={
+      "num_simulations": 100,
+      "dirichlet_alpha": 0.3,
+      "alpha": 0.1,
+      "c_puct": 4
+    }):
+
+    mcts = MCTS(self.model, self.env.board, mcts_args)
     game_state = 10
     tau = 0.01
     turn = 1 if player == "X" else -1 # your move vs model move
@@ -133,7 +146,7 @@ class Test:
         move = tuple(int(x) for x in move_str.split(","))
         mcts.select_move(external_move=move)
       else:
-        mcts.search(num_simulations=num_simulations)
+        mcts.search()
         move = mcts.select_move(tau=tau)
 
       game_state = self.env.step(move)
@@ -146,10 +159,17 @@ class Test:
     winner = "You" if winning_token == player else "Model"
     print(f"{winner} won in {len(self.env.move_hist)} moves")
     self.env.reset()
+
+mcts_args = {
+  "num_simulations": 100,
+  "alpha": 0.1,
+  "dirichlet_alpha": 0.3,
+  "c_puct": 4
+}
     
-test = Test("best_model", "best_opt_state", 10)
-# test.compare_model(None, None, games_per_side=10, num_simulations=100, render=1, alpha=0.1)
-test.play_model(player="O")
+test = Test("trained_model_4", "trained_opt_state_4", 10)
+# test.compare_model(None, None, games_per_side=10, render=1)
+# test.play_model(player="O")
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]

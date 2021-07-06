@@ -1,4 +1,5 @@
 from model import ZeroTTT
+from trainer import Trainer
 
 model_args = {
   "board_len": 10,
@@ -7,43 +8,38 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 100,
-  "alpha": 0.25,
+  "num_simulations": 200,
+  "alpha": 0.35,
   "c_puct": 4,
   "dirichlet_alpha": 0.3
 }
 
-args = {
-  "model": model_args,
-  "mcts": mcts_args
+db_args = {
+  "max_len": 600,
+  "augmentations": ["flip", "rotate"]
 }
 
+model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", args=model_args)
 
-# model = ZeroTTT(brain_path='best_model', opt_path='best_opt_state', lr=3e-4, weight_decay=2e-4, board_len=10)
-model = ZeroTTT(brain_path=None, opt_path=None, args=args)
+args = {
+  "model": model,
+  "mcts_args": mcts_args,
+  "db_args": db_args,
+  "board_len": 10
+}
 
-# model.self_play(n_games=1, num_simulations=2000, render=1, training_epochs=1, max_position_storage=60000, positions_per_learn=10000, batch_size=40)
-model.self_play(n_games=1000, num_simulations=100, render=3, training_epochs=1, max_position_storage=300, positions_per_learn=100, batch_size=40)
-
-
+trainer = Trainer(model, args)
+trainer.generate_buffer("./replay_buffer")
 
 '''
-  Bugs:
-- If you're traversing into a node that has no open tiles just return the value (no need to go in the node) (currently this might just evaluate it for no reason)
   TODO:
   1. Action space: add pass move which is to be played at the terminal state
   2. Consider adding T time steps in the past
-  3. num_simulations should be an input to search, not the construtor of MCTS
-'''
-
-'''
-  Improvements:
-- Consider changing Node.children to a dict from action to Edge
 '''
 
 '''
   Keep eye on:
-- Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE (could saturate)
+- Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE
 '''
 
 

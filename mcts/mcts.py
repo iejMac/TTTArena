@@ -14,6 +14,17 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count, 
 
 class MCTS():
   def __init__(self, model, root_state, args):
+    '''
+      model - class with predict method that returns a valid policy and value
+      root_state - board_len x board_len array with the initial state of the game
+
+      args:
+        num_simulations - number of leaf node expansions per search
+        alpha - mixing constant between policy and dirichlet noise
+        dirichlet_alpha - dirichlet constant for generating dirichlet distribution
+        c_puct - exploration constant in PUCT score
+    '''
+
     self.model = model
     self.root = deepcopy(root_state)
     self.args = args
@@ -37,8 +48,8 @@ class MCTS():
     for i, (move, prob) in enumerate(self.Ps[rs]):
       self.Ps[rs][i] = (move, (1 - self.args["alpha"]) * prob + dirichlet[i] * self.args["alpha"])
 
-  def search(self, num_simulations): # builds the search tree from the root node
-    for i in range(num_simulations):
+  def search(self): # builds the search tree from the root node
+    for i in range(self.args["num_simulations"]):
       self.find_leaf(deepcopy(self.root))
     return
 

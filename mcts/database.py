@@ -59,22 +59,24 @@ def swap_perspective_augmentation(states, labels):
   return aug_states, aug_labels, val_mask
 
 class DataBase:
-  def __init__(self, max_len=600):
+  def __init__(self, args):
     '''
-    augmentations : 
-      flip - transpose the state and policy (2x)
-      rotate - rotate state and policy by 90 degrees (4x)
+    args:
+      max_len - maximum length of replay buffer in RAM
 
-    max_len :
-      maximum length of replay buffer in RAM
+      augmentations :
+        flip - transpose the state and policy (2x)
+        rotate - rotate state and policy by 90 degrees (4x)
+
     '''
 
-    self.max_len = max_len
+    self.max_len = args["max_len"]
+    self.augmentations = args["augmentations"]
     self.augmentation_coefficient = 1
 
-    self.states = deque([], maxlen=max_len)
-    self.policy_labels = deque([], maxlen=max_len)
-    self.value_labels = deque([], maxlen=max_len)
+    self.states = deque([], maxlen=self.max_len)
+    self.policy_labels = deque([], maxlen=self.max_len)
+    self.value_labels = deque([], maxlen=self.max_len)
     self.value_mask = []
 
   def clear(self):
@@ -85,11 +87,11 @@ class DataBase:
   def is_full(self):
     return len(self.states) == len(self.policy_labels) == len(self.value_labels) == self.max_len
 
-  def append_policy(self, state, policy_label, augmentations=[]):
+  def append_policy(self, state, policy_label):
     aug_states = [state]
     aug_policy_labels = [policy_label]
 
-    for aug in augmentations:
+    for aug in self.augmentations:
       aug_states, aug_policy_labels, val_mask = eval(aug + "_augmentation")(aug_states, aug_policy_labels)
       self.value_mask += val_mask
 
