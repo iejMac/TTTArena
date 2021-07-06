@@ -10,11 +10,21 @@ def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count, 
   return child_value + c_puct * pb_c
 
 class MCTS():
-  def __init__(self, model, root_state, c_puct=4, alpha=0.25):
+  def __init__(self, model, root_state, args):
+    '''
+      model - class with predict method that returns a valid policy and value
+      root_state - board_len x board_len array with the initial state of the game
+
+      args:
+        num_simulations - number of leaf node expansions per search
+        alpha - mixing constant between policy and dirichlet noise
+        dirichlet_alpha - dirichlet constant for generating dirichlet distribution
+        c_puct - exploration constant in PUCT score
+    '''
+
     self.model = model
     self.root = deepcopy(root_state)
-    self.alpha = alpha
-    self.c_puct = c_puct
+    self.args = args
 
     self.Qsa = {} # self.Qsa(s, a) = Q value for (s, a)
     self.Nsa = {} # self.Nsa(s, a) = (s, a) visit count
@@ -31,12 +41,12 @@ class MCTS():
     if rs not in self.Ps:
       self.find_leaf(deepcopy(self.root))
 
-    dirichlet = np.random.dirichlet([0.3]*len(self.Ps[rs]))
+    dirichlet = np.random.dirichlet([self.args["dirichlet_alpha"]]*len(self.Ps[rs]))
     for i, (move, prob) in enumerate(self.Ps[rs]):
-      self.Ps[rs][i] = (move, (1 - self.alpha) * prob + dirichlet[i] * self.alpha)
+      self.Ps[rs][i] = (move, (1 - self.args["alpha"]) * prob + dirichlet[i] * self.args["alpha"])
 
-  def search(self, num_simulations): # builds the search tree from the root node
-    for i in range(num_simulations):
+  def search(self): # builds the search tree from the root node
+    for i in range(self.args["num_simulations"]):
       self.find_leaf(deepcopy(self.root))
     return
 
@@ -66,7 +76,7 @@ class MCTS():
 
     for move, prob in self.Ps[s]:
       (Nc, Qc) = (self.Nsa[(s, move)], self.Qsa[(s, move)]) if (s, move) in self.Nsa else (0, 0.0)
-      puct = PUCT_score(Qc, prob, self.Ns[s], Nc, self.c_puct)
+      puct = PUCT_score(Qc, prob, self.Ns[s], Nc, self.args["c_puct"])
       if puct > max_puct:
         max_puct = puct
         max_action = move
