@@ -158,11 +158,9 @@ class ZeroTTT():
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     self.brain = Brain(input_shape=(2, self.args["board_len"], self.args["board_len"])).to(self.device)
 
-    self.optimizer = optim.AdamW(self.brain.parameters(), lr=lr, weight_decay=weight_decay)
-    # self.optimizer = optim.SGD(self.brain.parameters(), lr=lr, momentum=0.9, weight_decay=weight_decay)
     self.policy_loss = softXEnt
     self.value_loss = nn.MSELoss()
-    self.optimizer = AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
+    self.optimizer = optim.AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
 
     if brain_path is not None:
       self.load_brain(brain_path, opt_path)
