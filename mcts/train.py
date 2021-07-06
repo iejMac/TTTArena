@@ -1,6 +1,6 @@
 from model import ZeroTTT
 
-model = ZeroTTT(brain_path="trained_model_0", opt_path="trained_opt_state_0", lr=3e-4, board_len=10)
+model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", lr=3e-4, board_len=10)
 
 # model.self_play(n_games=1000, num_simulations=100, render=1, training_epochs=1, max_position_storage=300000, positions_per_learn=100000, batch_size=40)
 # model.self_play(n_games=1000, num_simulations=100, render=10, training_epochs=1, max_position_storage=3000, positions_per_learn=1000, batch_size=100)
