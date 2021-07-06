@@ -29,35 +29,36 @@ class Environment():
     self.board[action[0]][action[1]] = self.turn
     self.move_hist.append((action, self.turn))
     self.turn *= -1 # turn swaps
-    return self.game_over()
+    return self.game_over(self.board)
 
-  def game_over(self):
+  @staticmethod
+  def game_over(board):
     win = np.ones(5)
     win_diag = np.identity(5)
 
-    for i in range(len(self.board)):
-      for j in range(len(self.board[i]) - len(win) + 1):
+    for i in range(len(board)):
+      for j in range(len(board[i]) - len(win) + 1):
 
-        similarity = np.sum(win * self.board[i][j : j + len(win)])
-        similarity_t = np.sum(win * self.board.T[i][j : j + len(win)])
+        similarity = np.sum(win * board[i][j : j + len(win)])
+        similarity_t = np.sum(win * board.T[i][j : j + len(win)])
 
         if similarity ==  5 or similarity_t == 5:
           return 1
         elif similarity ==  -5 or similarity_t == -5:
           return -1
 
-    for i in range(len(self.board) - len(win) + 1):
-      for j in range(len(self.board[i]) - len(win) + 1):
+    for i in range(len(board) - len(win) + 1):
+      for j in range(len(board[i]) - len(win) + 1):
 
-        similarity = np.sum(win_diag * self.board[i : i+len(win_diag), j : j +len(win_diag)])
-        similarity_t = np.sum(np.rot90(win_diag) * self.board[i : i+len(win_diag), j : j +len(win_diag)])
+        similarity = np.sum(win_diag * board[i : i+len(win_diag), j : j +len(win_diag)])
+        similarity_t = np.sum(np.rot90(win_diag) * board[i : i+len(win_diag), j : j +len(win_diag)])
 
         if similarity ==  5 or similarity_t == 5:
           return 1
         elif similarity ==  -5 or similarity_t == -5:
           return -1
     
-    if np.any(self.board == 0) is False: # draw
+    if np.any(board == 0) is False: # draw
       return 0
 
     return 10

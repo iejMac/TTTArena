@@ -29,7 +29,7 @@ args = {
 }
 
 trainer = Trainer(model, args)
-trainer.generate_buffer("./replay_buffer")
+trainer.generate_game(True)
 
 '''
   TODO:

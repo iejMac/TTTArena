@@ -4,6 +4,7 @@ import numpy as np
 from copy import deepcopy
 
 from database import prepare_state
+from environment import Environment
 
 np.random.seed(80085)
 random.seed(80085)
@@ -34,7 +35,7 @@ class MCTS():
     self.Ns = {} # self.Ns(s) = s visit count
     self.Ps = {} # self.Ps(s) = list of available actions in s and corresponding raw probabilities
 
-    # self.Es = {} # terminal states, potentially going to do this if not too computationally expensive and dirty
+    self.Es = {} # terminal states, potentially going to do this if not too computationally expensive and dirty
 
     # Add dirichlet noise to initial root node
     self.add_dirichlet()
@@ -43,7 +44,7 @@ class MCTS():
     rs = self.root.tobytes()
     if rs not in self.Ps:
       self.find_leaf(deepcopy(self.root))
-
+    # if self.Es[rs] == 10:
     dirichlet = np.random.dirichlet([self.args["dirichlet_alpha"]]*len(self.Ps[rs]))
     for i, (move, prob) in enumerate(self.Ps[rs]):
       self.Ps[rs][i] = (move, (1 - self.args["alpha"]) * prob + dirichlet[i] * self.args["alpha"])
@@ -55,6 +56,14 @@ class MCTS():
 
   def find_leaf(self, state):
     s = state.tobytes()
+
+    '''
+    if s not in self.Es:
+      self.Es[s] = Environment.game_over(state)
+    if self.Es[s] != 10:
+      # terminal state
+      return -self.Es[s]
+    '''
 
     if s not in self.Ps: # expand leaf node
       p, v = self.model.predict(prepare_state(state)) 
