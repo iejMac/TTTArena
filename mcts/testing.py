@@ -64,7 +64,7 @@ class Test:
           p, v = self.model.predict(prepare_state(((-1)**(self.env.turn == -1))*self.env.board))
 
           # Add the probability the model would play the human move
-          human_move_probability += p[move]
+          human_move_probability += p[move[0]][move[1]]
           value_sum += v
           value_mse += (winner*((-1)**(self.env.turn == -1)) - v)**2
 
@@ -167,9 +167,9 @@ mcts_args = {
   "c_puct": 4
 }
     
-test = Test("trained_model_4", "trained_opt_state_4", 10)
+test = Test("model_test", "opt_state_test", 10)
 # test.compare_model("trained_model_4", "trained_opt_state_4", games_per_side=10, render=1, mcts_args=mcts_args)
-test.play_model(player="O", mcts_args=mcts_args)
+# test.play_model(player="O", mcts_args=mcts_args)
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 7), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -177,5 +177,5 @@ pos2 = [(0, 0), (5, 5), (5, 0), (5, 4), (0, 9), (5, 3), (7, 1), (5, 6)]
 pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 
-# test.human_game_evaluation("../data/30x30")
+test.human_game_evaluation("../data/30x30")
 # test.visualize_model_output(pos1, True)
