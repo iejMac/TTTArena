@@ -11,14 +11,14 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 10,
-  "alpha": 0.35,
+  "num_simulations": 200,
+  "alpha": 0.25,
   "c_puct": 4,
   "dirichlet_alpha": 0.3
 }
 
 db_args = {
-  "max_len": 600,
+  "max_len": 10000,
   "augmentations": ["flip", "rotate"]
 }
 
@@ -50,6 +50,7 @@ class Manager:
     for proc in self.processes:
       proc.join()
 
+# TODO: add model/mcts args update with optional args in argparse
 def get_arg_parser():
   parser = argparse.ArgumentParser(description="Manage multiple Trainers generating a replay buffer")
   parser.add_argument("model_name", type=str, help="Name of model stored in AlphaTTT/mcts/models")
@@ -69,4 +70,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-
