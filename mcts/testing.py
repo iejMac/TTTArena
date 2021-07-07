@@ -172,7 +172,7 @@ mcts_args = {
   "c_puct": 4
 }
     
-test = Test("trained_model_4_1", "trained_opt_state_4_1", 10) 
+test = Test("trained_model_5_1", "trained_opt_state_5_1", 10) 
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]
@@ -181,8 +181,9 @@ pos3 = [(0, 0), (6, 5), (5, 0), (8, 4), (8, 9), (5, 9), (7, 1), (5, 6)]
 pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 
-# test.visualize_model_output(pos1, False)
-# test.visualize_model_output(pos2, False)
-# test.visualize_model_output(pos3, False)
-# test.visualize_model_output(pos4, False)
-# test.visualize_model_output(pos5, False)
+# test.human_game_evaluation("../data/30x30")
+test.compare_model("trained_model_4", "trained_opt_state_4", 40, render=1, mcts_args=mcts_args)
+
+if False:
+    for i in range(5):
+        test.visualize_model_output(eval(f"pos{i+1}"), False)
