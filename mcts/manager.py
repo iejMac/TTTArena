@@ -49,15 +49,23 @@ class Manager:
 
     for proc in self.processes:
       proc.join()
- 
-def main():
-  '''
-    Buffer path and n_proc passed as args
-  '''
 
-  model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", args=model_args)
-  manager = Manager(model, args, "replay_buffer", 10)
-  # manager.start()
+def get_arg_parser():
+  parser = argparse.ArgumentParser(description="Manage multiple Trainers generating a replay buffer")
+  parser.add_argument("model_name", type=str, help="Name of model stored in AlphaTTT/mcts/models")
+  parser.add_argument("opt_state_name", type=str, help="Name of optimizer state stored in AlphaTTT/mcts/models")
+  parser.add_argument("n_trainers", type=int, help="Number of trainers")
+  parser.add_argument("buffer_path", type=str, help="Path to replay buffer")
+
+  return parser
+
+def main():
+  parser = get_arg_parser()
+  manager_args = parser.parse_args()
+
+  model = ZeroTTT(brain_path=manager_args.model_name, opt_path=manager_args.opt_state_name, args=model_args)
+  manager = Manager(model, args, manager_args.buffer_path, manager_args.n_trainers)
+  manager.start()
 
 if __name__ == "__main__":
   main()
