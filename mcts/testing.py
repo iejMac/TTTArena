@@ -172,7 +172,7 @@ mcts_args = {
   "c_puct": 4
 }
     
-test = Test("trained_model_5_1", "trained_opt_state_5_1", 10) 
+test = Test("trained_model_1", "trained_opt_state_1", 10) 
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]

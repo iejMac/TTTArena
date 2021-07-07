@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 from multiprocessing import Process
 
 from model import ZeroTTT
@@ -28,7 +29,10 @@ args = {
   "board_len": 10
 }
 
-def manage_trainer(trainer, buffer_path):
+def manage_trainer(model_name, opt_state_name, model_args, trainer_args, buffer_path, seed):
+  np.random.seed(seed)
+  model = ZeroTTT(model_name, opt_state_name, model_args)
+  trainer = Trainer(model, args)
   while True:
     try:
       trainer.generate_buffer(buffer_path)
@@ -38,9 +42,8 @@ def manage_trainer(trainer, buffer_path):
       print(e)
 
 class Manager:
-  def __init__(self, model, args, buffer_path, n_proc):
-    self.trainers = [Trainer(model, args) for _ in range(n_proc)]
-    self.processes = [Process(target=manage_trainer, args=[tr, buffer_path]) for tr in self.trainers]
+  def __init__(self, model_name, opt_state_name, model_args, trainer_args, buffer_path, n_proc):
+    self.processes = [Process(target=manage_trainer, args=(model_name, opt_state_name, model_args, trainer_args, buffer_path, nr)) for nr in range(n_proc)]
 
   def start(self):
     print("Starting...")
@@ -64,8 +67,7 @@ def main():
   parser = get_arg_parser()
   manager_args = parser.parse_args()
 
-  model = ZeroTTT(brain_path=manager_args.model_name, opt_path=manager_args.opt_state_name, args=model_args)
-  manager = Manager(model, args, manager_args.buffer_path, manager_args.n_trainers)
+  manager = Manager(manager_args.model_name, manager_args.opt_state_name, model_args, args, manager_args.buffer_path, manager_args.n_trainers)
   manager.start()
 
 if __name__ == "__main__":
