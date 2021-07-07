@@ -22,7 +22,6 @@ db_args = {
 model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", args=model_args)
 
 args = {
-  "model": model,
   "mcts_args": mcts_args,
   "db_args": db_args,
   "board_len": 10
