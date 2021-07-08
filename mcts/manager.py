@@ -43,6 +43,11 @@ def manage_trainer(model_name, opt_state_name, model_args, trainer_args, buffer_
 
 class Manager:
   def __init__(self, model_name, opt_state_name, model_args, trainer_args, buffer_path, n_proc):
+    if model_name == "None":
+        model_name = None
+    if opt_state_name == "None":
+        opt_state_name = None
+
     self.processes = [Process(target=manage_trainer, args=(model_name, opt_state_name, model_args, trainer_args, buffer_path, nr)) for nr in range(n_proc)]
 
   def start(self):

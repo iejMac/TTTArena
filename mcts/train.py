@@ -8,7 +8,7 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 20,
+  "num_simulations": 200,
   "alpha": 0.25,
   "c_puct": 7,
   "dirichlet_alpha": 0.3
@@ -19,7 +19,7 @@ db_args = {
   "augmentations": ["flip", "rotate"]
 }
 
-model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", args=model_args)
+model = ZeroTTT(brain_path="trained_model_0", opt_path="trained_opt_state_0", args=model_args)
 
 args = {
   "mcts_args": mcts_args,
@@ -28,7 +28,7 @@ args = {
 }
 
 trainer = Trainer(model, args)
-trainer.generate_buffer("/storage/replay_buffer")
+trainer.generate_game(True)
 
 '''
   TODO:
