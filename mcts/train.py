@@ -3,23 +3,23 @@ from trainer import Trainer
 
 model_args = {
   "board_len": 10,
-  "lr": 1e-4,
-  "weight_decay": 3e-4
+  "lr": 3e-4,
+  "weight_decay": 1e-4
 }
 
 mcts_args = {
   "num_simulations": 200,
-  "alpha": 0.35,
+  "alpha": 0.25,
   "c_puct": 4,
   "dirichlet_alpha": 0.3
 }
 
 db_args = {
-  "max_len": 600,
+  "max_len": 2000,
   "augmentations": ["flip", "rotate"]
 }
 
-model = ZeroTTT(brain_path="trained_model_4", opt_path="trained_opt_state_4", args=model_args)
+model = ZeroTTT(brain_path=None, opt_path=None, args=model_args)
 
 args = {
   "mcts_args": mcts_args,
@@ -28,7 +28,17 @@ args = {
 }
 
 trainer = Trainer(model, args)
-trainer.generate_game(True)
+game_nr = 1
+while True:
+  print(f"Game {game_nr}...")
+  render = game_nr % 5 == 0
+  trainer.generate_game(render)
+
+  if trainer.database.is_full():
+    trainer.train(1, 100, "test")
+    trainer.database.clear()
+
+  game_nr += 1
 
 '''
   TODO:
