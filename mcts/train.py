@@ -28,27 +28,4 @@ args = {
 }
 
 trainer = Trainer(model, args)
-game_nr = 1
-while True:
-  print(f"Game {game_nr}...")
-  render = game_nr % 5 == 0
-  trainer.generate_game(render)
-
-  if trainer.database.is_full():
-    trainer.train(1, 100, "test")
-    trainer.database.clear()
-
-  game_nr += 1
-
-'''
-  TODO:
-  1. Action space: add pass move which is to be played at the terminal state
-  2. Consider adding T time steps in the past
-'''
-
-'''
-  Keep eye on:
-- Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE
-'''
-
-
+trainer.generate_game(True)

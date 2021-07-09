@@ -1,5 +1,8 @@
 import os
+import sys
 import numpy as np
+
+sys.path.append('..')
 
 from mcts import MCTS
 from model import ZeroTTT

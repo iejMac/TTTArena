@@ -1,4 +1,7 @@
+import sys
 import torch
+
+sys.path.append('..')
 
 from mcts import MCTS
 from database import DataBase

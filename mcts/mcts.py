@@ -1,7 +1,10 @@
+import sys
 import math
 import random
 import numpy as np
 from copy import deepcopy
+
+sys.path.append('..')
 
 from database import prepare_state
 from environment import Environment

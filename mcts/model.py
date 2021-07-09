@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 from copy import deepcopy
 from collections import deque
@@ -7,6 +8,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.optim import AdamW
+
+sys.path.append('..')
 
 from mcts import MCTS
 from database import DataBase
