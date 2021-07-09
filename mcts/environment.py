@@ -19,15 +19,9 @@ class Environment():
     self.turn = self.x_token
     return
 
-  def step(self, action, override_turn=None):
-
-    if override_turn is not None:
-      self.board[action[0]][action[1]] = override_turn
-      self.move_hist.append((action, override_turn))
-      return
-
+  def step(self, action):
     self.board[action[0]][action[1]] = self.turn
-    self.move_hist.append((action, self.turn))
+    self.move_hist.append(action)
     self.turn *= -1 # turn swaps
     return self.game_over(self.board)
 
