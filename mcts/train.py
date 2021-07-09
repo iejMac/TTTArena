@@ -19,7 +19,7 @@ db_args = {
   "augmentations": ["flip", "rotate"]
 }
 
-model = ZeroTTT(brain_path="trained_model_0", opt_path="trained_opt_state_0", args=model_args)
+model = ZeroTTT(brain_path="trained_model_1", opt_path="trained_opt_state_1", args=model_args)
 
 args = {
   "mcts_args": mcts_args,
