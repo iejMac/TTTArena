@@ -12,7 +12,7 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 300,
+  "num_simulations": 500,
   "alpha": 0.25,
   "c_puct": 4,
   "dirichlet_alpha": 0.3

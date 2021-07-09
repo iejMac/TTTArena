@@ -166,7 +166,7 @@ class Test:
     self.env.reset()
 
 mcts_args = {
-  "num_simulations": 400,
+  "num_simulations": 2000,
   "alpha": 0.1,
   "dirichlet_alpha": 0.3,
   "c_puct": 4
@@ -182,7 +182,7 @@ pos4 = [(0, 0), (6, 5), (0, 1), (8, 4), (0, 2), (5, 9), (0, 3), (5, 6)]
 pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 
 # test.human_game_evaluation("../data/30x30")
-test.compare_model("trained_model_2", "trained_opt_state_2", 40, render=1, mcts_args=mcts_args)
+# test.compare_model("trained_model_2", "trained_opt_state_2", 40, render=1, mcts_args=mcts_args)
 test.play_model(player="X", mcts_args=mcts_args)
 
 if False:
