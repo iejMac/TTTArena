@@ -8,8 +8,8 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 400,
-  "alpha": 0.15,
+  "num_simulations": 600,
+  "alpha": 0.25,
   "c_puct": 8,
   "dirichlet_alpha": 0.3
 }
@@ -19,7 +19,7 @@ db_args = {
   "augmentations": ["flip", "rotate"]
 }
 
-model = ZeroTTT(brain_path="trained_model_1", opt_path="trained_opt_state_1", args=model_args)
+model = ZeroTTT(brain_path="trained_model_2", opt_path="trained_opt_state_2", args=model_args)
 
 args = {
   "mcts_args": mcts_args,

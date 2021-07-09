@@ -166,7 +166,7 @@ class Test:
     self.env.reset()
 
 mcts_args = {
-  "num_simulations": 2000,
+  "num_simulations": 500,
   "alpha": 0.1,
   "dirichlet_alpha": 0.3,
   "c_puct": 4
