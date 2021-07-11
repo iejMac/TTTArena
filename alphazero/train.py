@@ -3,15 +3,16 @@ from trainer import Trainer
 
 model_args = {
   "board_len": 10,
-  "lr": 1e-4,
-  "weight_decay": 3e-4
+  "lr": 3e-4,
+  "weight_decay": 1e-4
 }
 
 mcts_args = {
-  "num_simulations": 600,
+  "num_simulations": 200,
   "alpha": 0.25,
-  "c_puct": 8,
-  "dirichlet_alpha": 0.3
+  "c_puct": 4,
+  "dirichlet_alpha": 0.3,
+  "tau": 1.0
 }
 
 db_args = {
@@ -19,7 +20,7 @@ db_args = {
   "augmentations": ["flip", "rotate"]
 }
 
-model = ZeroTTT(brain_path="trained_model_2", opt_path="trained_opt_state_2", args=model_args)
+model = ZeroTTT(brain_path="trained_model_3", opt_path="trained_opt_state_3", args=model_args)
 
 args = {
   "mcts_args": mcts_args,
