@@ -15,11 +15,8 @@ class Arena:
     self.xa, self.oa = self.oa, self.xa
 
   def move(self):
-    if self.game_state != 10:
-      return False
-
     current_player, other_player = (self.xa, self.oa) if self.env.turn == 1 else (self.oa, self.xa)
     move = current_player.make_action(self.env.board)
     other_player.update_state(move)
     self.game_state = self.env.step(move)
-    return True
+    return self.game_state
