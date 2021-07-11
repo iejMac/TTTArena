@@ -6,8 +6,9 @@ from copy import deepcopy
 
 sys.path.append('..')
 
-from database import prepare_state
 from environment import Environment
+
+from alphazero.database import prepare_state
 
 np.random.seed(80085)
 random.seed(80085)

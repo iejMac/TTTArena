@@ -11,6 +11,9 @@ class Arena:
 
   def play(self, render=True):
 
+    self.xa.init_state(self.env.board)
+    self.oa.init_state(self.env.board)
+
     game_state = 10
     current_player, other_player = self.xa, self.oa # x always starts
 
@@ -24,6 +27,5 @@ class Arena:
       if render:
         self.env.render()
 
+    print(f"{other_player.name} won")
     self.env.reset()
-    
-

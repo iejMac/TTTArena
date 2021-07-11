@@ -11,10 +11,11 @@ from torch.optim import AdamW
 
 sys.path.append('..')
 
-from mcts import MCTS
-from database import DataBase
-from database import prepare_state
 from environment import Environment
+
+from alphazero.mcts import MCTS
+from alphazero.database import DataBase
+from alphazero.database import prepare_state
 
 torch.manual_seed(80085)
 np.random.seed(80085)
@@ -157,15 +158,15 @@ class ZeroTTT():
 
   def save_brain(self, model_name, opt_state_name):
     print("Saving brain...")
-    torch.save(self.brain.state_dict(), os.path.join('models', model_name))
+    torch.save(self.brain.state_dict(), os.path.join('alphazero/models', model_name))
     if opt_state_name is not None:
-        torch.save(self.optimizer.state_dict(), os.path.join('models', opt_state_name))
+        torch.save(self.optimizer.state_dict(), os.path.join('alphazero/models', opt_state_name))
 
   def load_brain(self, model_name, opt_state_name):
     print("Loading brain...")
-    self.brain.load_state_dict(torch.load(os.path.join('models', model_name), map_location=self.device))
+    self.brain.load_state_dict(torch.load(os.path.join('alphazero/models', model_name), map_location=self.device))
     if opt_state_name is not None:
-        self.optimizer.load_state_dict(torch.load(os.path.join('models', opt_state_name), map_location=self.device))
+        self.optimizer.load_state_dict(torch.load(os.path.join('alphazero/models', opt_state_name), map_location=self.device))
     return
 
   def predict(self, x, interpret_output=True):

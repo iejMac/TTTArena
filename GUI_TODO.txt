@@ -14,3 +14,4 @@ Pygame, Pygame_GUI
   - some sort of mcts explorer??? (hard) (maybe separate script or sth)'
 
 4. 1 command setup (!!!)
+5. Logging system so people can input a username and commit their games to the database (needs to log if playing against human, player or whatever) (!!!)

@@ -4,8 +4,8 @@ sys.path.append('..')
 from agent import Agent
 
 class Human(Agent):
-  def __init__(self):
-    pass
+  def __init__(self, name):
+    super().__init__(name)
   def init_state(self, state):
     pass
   def make_action(self, state):

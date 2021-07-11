@@ -11,7 +11,8 @@ mcts_args = {
   "num_simulations": 200,
   "alpha": 0.25,
   "c_puct": 4,
-  "dirichlet_alpha": 0.3
+  "dirichlet_alpha": 0.3,
+  "tau": 1.0
 }
 
 db_args = {
