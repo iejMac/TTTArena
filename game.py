@@ -1,5 +1,8 @@
 import pygame
 
+def get_agents():
+  pass
+
 def drawgrid(w, rows, surface):
   sizeBtwn = w//rows
   x = 0
@@ -10,20 +13,24 @@ def drawgrid(w, rows, surface):
     x += sizeBtwn
     y += sizeBtwn
 
-pygame.init()
+def play():
+  pygame.init()
 
-screen = pygame.display.set_mode([800, 500])
+  screen = pygame.display.set_mode([800, 500])
 
-running = True
-while running:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      running = False
+  running = True
+  while running:
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        running = False
 
-  screen.fill((0, 0, 0))
+    screen.fill((0, 0, 0))
 
-  pygame.draw.rect(screen, (255, 255, 255), (5, 5, 20, 10))
+    pygame.draw.rect(screen, (255, 255, 255), (5, 5, 20, 10))
 
-  pygame.display.flip()
+    pygame.display.flip()
 
-pygame.quit()
+  pygame.quit()
+
+if __name__ == "__main__":
+  play()
