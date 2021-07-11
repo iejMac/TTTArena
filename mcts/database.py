@@ -3,20 +3,6 @@ import numpy as np
 from copy import deepcopy
 from collections import deque
 
-'''
-def prepare_state(state):
-  split = np.zeros((3, len(state), len(state)))
-  if np.sum(state) == 0: # x turn
-    split[-1] = np.ones((len(state), len(state)))
-  for i, row in enumerate(state):
-    for j, cell in enumerate(row):
-      if cell == 1:
-        split[0][i][j] = 1
-      elif cell == -1:
-        split[1][i][j] = 1
-  return split
-'''
-
 def prepare_state(state):
   split = np.zeros((2, len(state), len(state)))
   for i, row in enumerate(state):
@@ -102,15 +88,6 @@ class DataBase:
     self.policy_labels += aug_policy_labels
     self.augmentation_coefficient = len(aug_states)
 
-  '''
-  def append_value(self, winner, game_length):
-    val_labs = [winner]*((game_length + 1)*self.augmentation_coefficient)
-    if len(self.value_mask) == len(val_labs):
-      val_labs = [val_labs[i] * self.value_mask[i] for i in range(len(val_labs))]
-      self.value_mask = []
-    self.value_labels += val_labs
-  '''
-
   def append_value(self, winner, game_length):
     val_labs = []
     offset = (-1.0)**(winner == -1.0)
@@ -161,25 +138,7 @@ class DataBase:
       train_states = np.load(os.path.join(from_memory_paths[0]))
       train_policy_labels = np.load(os.path.join(from_memory_paths[1]))
       train_value_labels = np.load(os.path.join(from_memory_paths[2]))
-    '''
-    # TEST AUGMENTATION FOR VALUE BALANCING:
-    aug_state_array = []
-    aug_pol_array = []
-    aug_val_array = []
-    for i in range(len(train_states)):
-        aug_state_array.append(deepcopy(train_states[i]))
-        aug_state_array.append(deepcopy(train_states[i]))
 
-        aug_pol_array.append(deepcopy(train_policy_labels[i]))
-        aug_pol_array.append(deepcopy(train_policy_labels[i]))
-
-        aug_val_array.append(deepcopy(train_value_labels[i]))
-        aug_val_array.append(deepcopy(train_value_labels[i]*(-1)))
-
-    train_states = np.array(aug_state_array)
-    train_policy_labels = np.array(aug_pol_array)
-    train_value_labels = np.array(aug_val_array)
-    '''
     # Mix up:
     perm = np.random.permutation(len(train_states))
     train_states = train_states[perm]
