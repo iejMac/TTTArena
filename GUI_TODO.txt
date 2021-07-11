@@ -1,5 +1,3 @@
-New GUI
-testing
 Task:
 Make a good game visualization TOOL
 
