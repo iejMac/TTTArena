@@ -1,7 +1,25 @@
+import os
 import pygame
+import inspect
+import importlib
 
-def get_agents():
-  pass
+from arena import Arena
+
+def get_agent():
+
+  # Get agent type
+  p_type = input("Player type: ")
+  agent_mod = importlib.import_module(p_type + ".agent")
+  for name, cls in inspect.getmembers(agent_mod, inspect.isclass):
+    base_names = [base.__name__ for base in cls.__bases__]
+    if "Agent" in base_names:
+      agent_cls = cls
+      break
+
+  # Get params
+  params = agent_cls.get_params()
+  agent = agent_cls(params)
+  return agent
 
 def drawgrid(w, rows, surface):
   sizeBtwn = w//rows
@@ -33,4 +51,9 @@ def play():
   pygame.quit()
 
 if __name__ == "__main__":
-  play()
+  p1 = get_agent()
+  p2 = get_agent()
+
+  a = Arena(p1, p2, board_len=10)
+
+
