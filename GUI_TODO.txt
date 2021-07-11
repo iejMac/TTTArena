@@ -1,4 +1,3 @@
-New GUI
 Task:
 Make a good game visualization TOOL
 
