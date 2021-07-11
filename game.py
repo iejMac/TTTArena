@@ -10,20 +10,49 @@ def drawgrid(w, rows, surface):
     x += sizeBtwn
     y += sizeBtwn
 
+def drawdata(data, surface):
+  for i, coords in enumerate(data):
+    if i%2:
+        screen.blit(textsurfaceX, (coords[0]*size + size/3, coords[1]*size))
+    else:
+        screen.blit(textsurfaceO, (coords[0]*size + size/3, coords[1]*size))
+
 pygame.init()
 
-screen = pygame.display.set_mode([800, 500])
+screen_height = 600
+screen = pygame.display.set_mode([screen_height, screen_height])
+
+
+rows = 10
+size = screen_height/rows
+
+data = []
+
+myfont = pygame.font.SysFont('courier new', int(3*size/4))
+textsurfaceX = myfont.render('X', False, (0, 0, 0))
+textsurfaceO = myfont.render('O', False, (0, 0, 0))
 
 running = True
 while running:
+  
+  (mouse_x, mouse_y) = pygame.mouse.get_pos()
+  mouse_x = int(mouse_x/size)
+  mouse_y = int(mouse_y/size)
+  
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       running = False
+    if event.type == pygame.MOUSEBUTTONDOWN and mouse_x < rows and mouse_y < rows:
+      data.append((mouse_x, mouse_y))
 
-  screen.fill((0, 0, 0))
+  screen.fill((255, 255, 255))
 
-  pygame.draw.rect(screen, (255, 255, 255), (5, 5, 20, 10))
-
+  drawgrid(screen_height, rows, screen)
+  drawdata(data, screen)
+  
+  if mouse_x < rows and mouse_y < rows:
+    pygame.draw.rect(screen, (190, 190, 190), (size*mouse_x, size*mouse_y, size, size))
+  
   pygame.display.flip()
 
 pygame.quit()
