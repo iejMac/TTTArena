@@ -17,7 +17,6 @@ def get_agent():
 
   # Get params
   params = agent_cls.get_params()
-  print(*params)
   agent = agent_cls(*params)
   return agent
 
