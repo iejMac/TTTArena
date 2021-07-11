@@ -1,5 +1,15 @@
 import pygame
 
+def drawgrid(w, rows, surface):
+  sizeBtwn = w//rows
+  x = 0
+  y = 0
+  for l in range(rows + 1):
+    pygame.draw.line(surface, (0, 0, 0), (x, 0), (x, w))
+    pygame.draw.line(surface, (0, 0, 0), (0, y), (w, y))
+    x += sizeBtwn
+    y += sizeBtwn
+
 pygame.init()
 
 screen = pygame.display.set_mode([800, 500])
