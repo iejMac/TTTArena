@@ -9,11 +9,11 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 200,
-  "alpha": 0.25,
+  "num_simulations": 2000,
+  "alpha": 0.01,
   "c_puct": 4,
   "dirichlet_alpha": 0.3,
-  "tau": 1.0
+  "tau": 0.01
 }
 
 args = {
@@ -22,7 +22,7 @@ args = {
 }
 
 
-p1 = ZeroAgent("trained_model_3", "trained_opt_state_3", args)
+p1 = ZeroAgent("trained_model_2", "trained_opt_state_2", args)
 p2 = Human("Maciej")
 
 a = Arena(p1, p2, board_len=10)
