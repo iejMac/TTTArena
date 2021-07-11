@@ -6,26 +6,20 @@ class Arena:
     self.xa = x_agent
     self.oa = o_agent
 
-  def swap_agents(self):
-    self.xa, self.oa = self.oa, self.xa
-
-  def play(self, render=True):
-
     self.xa.init_state(self.env.board)
     self.oa.init_state(self.env.board)
 
-    game_state = 10
-    current_player, other_player = self.xa, self.oa # x always starts
+    self.game_state = 10
 
-    while game_state == 10:
-      move = current_player.make_action(self.env.board) # player makes move
-      other_player.update_state(move) # other player gets informed what move was made
+  def swap_agents(self):
+    self.xa, self.oa = self.oa, self.xa
 
-      game_state = self.env.step(move)
-      current_player, other_player = other_player, current_player
+  def move(self):
+    if self.game_state != 10:
+      return False
 
-      if render:
-        self.env.render()
-
-    print(f"{other_player.name} won")
-    self.env.reset()
+    current_player, other_player = (self.xa, self.oa) if self.env.turn == 1 else (self.oa, self.xa)
+    move = current_player.make_action(self.env.board)
+    other_player.update_state(move)
+    self.game_state = self.env.step(move)
+    return True
