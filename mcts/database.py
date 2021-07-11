@@ -102,19 +102,10 @@ class DataBase:
     self.policy_labels += aug_policy_labels
     self.augmentation_coefficient = len(aug_states)
 
-  '''
-  def append_value(self, winner, game_length):
-    val_labs = [winner]*((game_length + 1)*self.augmentation_coefficient)
-    if len(self.value_mask) == len(val_labs):
-      val_labs = [val_labs[i] * self.value_mask[i] for i in range(len(val_labs))]
-      self.value_mask = []
-    self.value_labels += val_labs
-  '''
-
   def append_value(self, winner, game_length):
     val_labs = []
     offset = (-1.0)**(winner == -1.0)
-    for i in range(game_length + 1):
+    for i in range(game_length):
       val_labs += [offset * (-1.0)**(i%2 == 1)] * self.augmentation_coefficient
 
     if len(self.value_mask) == len(val_labs):
