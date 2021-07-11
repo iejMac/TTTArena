@@ -4,6 +4,7 @@ sys.path.append('..')
 from agent import Agent
 
 from mcts import MCTS
+from model import ZeroTTT
 
 class ZeroAgent(Agent):
   def __init__(self):

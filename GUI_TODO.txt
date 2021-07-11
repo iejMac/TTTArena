@@ -1,0 +1,16 @@
+Task:
+Make a good game visualization TOOL
+
+Modules to look at:
+Pygame, Pygame_GUI
+
+1. Easy to load, swap, and make changes to agent params
+2. 2 modes:
+    a. game mode where it's just a simple GUI for playing models against each other
+    b. debug mode where you can visualize game metrics and see what models are "thinking" if applicable
+3. Easy to add visualization metrics (defined in approach folder according to template) to see during gameplay f.e.:
+  - graph of model certainty over time
+  - heat map of interesting moves for players
+  - some sort of mcts explorer??? (hard) (maybe separate script or sth)'
+
+4. 1 command setup (!!!)
