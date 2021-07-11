@@ -22,4 +22,3 @@ class ZeroAgent(Agent):
 
   def update_state(self, action):
     self.mcts.select_move(external_move=action)
-
