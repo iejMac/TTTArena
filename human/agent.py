@@ -10,6 +10,7 @@ class Human(Agent):
     super().__init__(name)
   def init_state(self, state):
     pass
+
   def make_action(self, state):
     while True:
       move_str = input("Input a move y, x: ")
@@ -30,3 +31,8 @@ class Human(Agent):
 
   def update_state(self, move):
     pass
+
+  @staticmethod
+  def get_params():
+    name = input("Enter player name: ")
+    return name

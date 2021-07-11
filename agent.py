@@ -9,3 +9,6 @@ class Agent:
     pass
   def update_state(self, move):
     pass
+  @staticmethod
+  def get_params():
+    pass
