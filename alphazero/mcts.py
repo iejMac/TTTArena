@@ -117,7 +117,7 @@ class MCTS():
     for move, _ in self.Ps[rs]:
       move_dist[move] = self.Nsa[(rs, move)] if (rs, move) in self.Nsa else 0
     if as_prob is True:
-      if tau < 0.1:
+      if tau < 0.1: # protecting from numerical overflow 
         z = np.zeros(move_dist.shape)
         move = np.unravel_index(np.argmax(move_dist), move_dist.shape)
         z[move[0]][move[1]] = 1.0
