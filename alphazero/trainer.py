@@ -27,7 +27,7 @@ class Trainer:
     self.model.brain.eval()
     env = Environment(board_len=self.args["board_len"])
 
-    tau = 0.3
+    tau = 1.0
     game_state = 10
     mcts = MCTS(self.model, env.board, self.args["mcts_args"])
 
