@@ -9,7 +9,7 @@ from torch import nn
 from torch import optim
 from torch.nn import functional as F
 
-sys.path.append('..')
+sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
 
 from environment import Environment
 
@@ -159,15 +159,15 @@ class ZeroTTT():
 
   def save_brain(self, model_name, opt_state_name):
     print("Saving brain...")
-    torch.save(self.brain.state_dict(), os.path.join('alphazero/models', model_name))
+    torch.save(self.brain.state_dict(), os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", model_name))
     if opt_state_name is not None:
-        torch.save(self.optimizer.state_dict(), os.path.join('alphazero/models', opt_state_name))
+      torch.save(self.optimizer.state_dict(), os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", opt_state_name))
 
   def load_brain(self, model_name, opt_state_name):
     print("Loading brain...")
-    self.brain.load_state_dict(torch.load(os.path.join('alphazero/models', model_name), map_location=self.device))
+    self.brain.load_state_dict(torch.load(os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", model_name), map_location=self.device))
     if opt_state_name is not None:
-        self.optimizer.load_state_dict(torch.load(os.path.join('alphazero/models', opt_state_name), map_location=self.device))
+        self.optimizer.load_state_dict(torch.load(os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", opt_state_name), map_location=self.device))
     return
 
   def predict(self, x, interpret_output=True):

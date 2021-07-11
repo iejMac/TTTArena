@@ -2,12 +2,13 @@ import os
 import sys
 import numpy as np
 
-sys.path.append('..')
+sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
 
-from mcts import MCTS
-from model import ZeroTTT
-from database import prepare_state
 from environment import Environment
+
+from alphazero.mcts import MCTS
+from alphazero.model import ZeroTTT
+from alphazero.database import prepare_state
 
 class Test:
   def __init__(self, model_name, opt_name, board_len=10):
@@ -175,7 +176,7 @@ mcts_args = {
   "c_puct": 4
 }
     
-test = Test("trained_model_3_0", "trained_opt_state_3_0", 10) 
+test = Test("trained_model_3", "trained_opt_state_3", 10) 
 
 pos1 = [(5, 5), (4, 5), (4, 4), (3, 6), (4, 6), (3, 5), (2, 6), (3, 7), (2, 7), (3, 4),
 (3, 3), (2, 5), (3, 8), (1, 5), (0, 5), (1, 4), (2, 2)]

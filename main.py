@@ -22,7 +22,7 @@ args = {
 }
 
 
-p1 = ZeroAgent("model_test", "opt_state_test", args)
+p1 = ZeroAgent("trained_model_3", "trained_opt_state_3", args)
 p2 = Human("Maciej")
 
 a = Arena(p1, p2, board_len=10)
