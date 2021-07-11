@@ -49,4 +49,4 @@ for game in games:
         db.append_value(winner, len(game_hist) - 1) # no terminal state
         env.reset()
 
-# db.save_data()
+db.save_data("/storage/supervised_data")

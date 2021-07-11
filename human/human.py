@@ -1,6 +1,8 @@
+import os
 import sys
 
-sys.path.append('..')
+sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
+
 from agent import Agent
 
 class Human(Agent):

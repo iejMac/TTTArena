@@ -6,10 +6,10 @@ from collections import deque
 
 import torch
 from torch import nn
+from torch import optim
 from torch.nn import functional as F
-from torch.optim import AdamW
 
-sys.path.append('..')
+sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
 
 from environment import Environment
 
@@ -72,7 +72,9 @@ class ConvolutionalBlock(nn.Module):
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv3(x)
+
     shortcut = self.conv_change(shortcut)
+
     x += shortcut
     x = F.leaky_relu(x, 0.2)
 
@@ -113,7 +115,6 @@ class Brain(nn.Module):
 
     self.input_shape = input_shape
     use_bias = True
-
     self.conv1 = nn.Conv2d(input_shape[0], 16, padding=(2,2), kernel_size=5, stride=1, bias=use_bias)
     self.convolutional1 = ConvolutionalBlock(5, [24, 48, 24], 16, use_bias)
     self.identity1 = IdentityBlock(5, [24, 48], 24, use_bias)
@@ -147,7 +148,7 @@ class ZeroTTT():
 
     self.policy_loss = softXEnt
     self.value_loss = nn.MSELoss()
-    self.optimizer = AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
+    self.optimizer = optim.AdamW(self.brain.parameters(), lr=self.args["lr"], weight_decay=self.args["weight_decay"])
 
     if brain_path is not None:
       self.load_brain(brain_path, opt_path)
@@ -158,15 +159,15 @@ class ZeroTTT():
 
   def save_brain(self, model_name, opt_state_name):
     print("Saving brain...")
-    torch.save(self.brain.state_dict(), os.path.join('alphazero/models', model_name))
+    torch.save(self.brain.state_dict(), os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", model_name))
     if opt_state_name is not None:
-        torch.save(self.optimizer.state_dict(), os.path.join('alphazero/models', opt_state_name))
+      torch.save(self.optimizer.state_dict(), os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", opt_state_name))
 
   def load_brain(self, model_name, opt_state_name):
     print("Loading brain...")
-    self.brain.load_state_dict(torch.load(os.path.join('alphazero/models', model_name), map_location=self.device))
+    self.brain.load_state_dict(torch.load(os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", model_name), map_location=self.device))
     if opt_state_name is not None:
-        self.optimizer.load_state_dict(torch.load(os.path.join('alphazero/models', opt_state_name), map_location=self.device))
+        self.optimizer.load_state_dict(torch.load(os.path.join(os.environ["HOME"], "AlphaTTT/alphazero/models", opt_state_name), map_location=self.device))
     return
 
   def predict(self, x, interpret_output=True):

@@ -1,10 +1,11 @@
+import os
 import sys
 import math
 import random
 import numpy as np
 from copy import deepcopy
 
-sys.path.append('..')
+sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
 
 from environment import Environment
 
@@ -117,7 +118,13 @@ class MCTS():
     for move, _ in self.Ps[rs]:
       move_dist[move] = self.Nsa[(rs, move)] if (rs, move) in self.Nsa else 0
     if as_prob is True:
-      move_dist = np.power(move_dist, 1.0/tau)
+      if tau < 0.1: # protecting from numerical overflow 
+        z = np.zeros(move_dist.shape)
+        move = np.unravel_index(np.argmax(move_dist), move_dist.shape)
+        z[move[0]][move[1]] = 1.0
+        move_dist = z
+      else:
+        move_dist = np.power(move_dist, 1.0/tau)
       if np.sum(move_dist) > 0.0:
         move_dist /= np.sum(move_dist)
     return move_dist

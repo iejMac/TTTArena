@@ -12,9 +12,9 @@ model_args = {
 }
 
 mcts_args = {
-  "num_simulations": 200,
+  "num_simulations": 600,
   "alpha": 0.25,
-  "c_puct": 4,
+  "c_puct": 8,
   "dirichlet_alpha": 0.3
 }
 
@@ -42,7 +42,13 @@ def manage_trainer(model_name, opt_state_name, model_args, trainer_args, buffer_
       print(e)
   
 class Manager:
-  def __init__(self, model_name, opt_state_name, model_args, trainer_args, buffer_path, n_proc):    self.processes = [Process(target=manage_trainer, args=(model_name, opt_state_name, model_args, trainer_args, buffer_path, nr)) for nr in range(n_proc)]
+  def __init__(self, model_name, opt_state_name, model_args, trainer_args, buffer_path, n_proc):
+    if model_name == "None":
+        model_name = None
+    if opt_state_name == "None":
+        opt_state_name = None
+
+    self.processes = [Process(target=manage_trainer, args=(model_name, opt_state_name, model_args, trainer_args, buffer_path, nr)) for nr in range(n_proc)]
 
   def start(self):
     print("Starting...")

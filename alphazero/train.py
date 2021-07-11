@@ -16,11 +16,11 @@ mcts_args = {
 }
 
 db_args = {
-  "max_len": 2000,
+  "max_len": 10000,
   "augmentations": ["flip", "rotate"]
 }
 
-model = ZeroTTT(brain_path=None, opt_path=None, args=model_args)
+model = ZeroTTT(brain_path="trained_model_3", opt_path="trained_opt_state_3", args=model_args)
 
 args = {
   "mcts_args": mcts_args,

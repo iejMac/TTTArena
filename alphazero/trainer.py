@@ -1,7 +1,8 @@
+import os
 import sys
 import torch
 
-sys.path.append('..')
+sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
 
 from mcts import MCTS
 from database import DataBase
@@ -85,4 +86,3 @@ class Trainer:
         self.database.save_data(buffer_path)
         self.database.clear()
       game_nr += 1
-
