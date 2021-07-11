@@ -6,7 +6,6 @@ import importlib
 from arena import Arena
 
 def get_agent():
-
   # Get agent type
   p_type = input("Player type: ")
   agent_mod = importlib.import_module(p_type + ".agent")
@@ -18,7 +17,8 @@ def get_agent():
 
   # Get params
   params = agent_cls.get_params()
-  agent = agent_cls(params)
+  print(*params)
+  agent = agent_cls(*params)
   return agent
 
 def drawgrid(w, rows, surface):
@@ -82,4 +82,3 @@ if __name__ == "__main__":
   p2 = get_agent()
 
   a = Arena(p1, p2, board_len=10)
-

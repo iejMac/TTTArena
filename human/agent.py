@@ -35,4 +35,4 @@ class Human(Agent):
   @staticmethod
   def get_params():
     name = input("Enter player name: ")
-    return name
+    return (name,)
