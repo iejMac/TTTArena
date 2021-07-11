@@ -18,7 +18,7 @@ running = True
 while running:
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
-      tunning = False
+      running = False
 
   screen.fill((0, 0, 0))
 
