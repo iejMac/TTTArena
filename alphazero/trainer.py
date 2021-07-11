@@ -1,4 +1,7 @@
+import sys
 import torch
+
+sys.path.append('..')
 
 from mcts import MCTS
 from database import DataBase
@@ -41,10 +44,7 @@ class Trainer:
       if render:
         env.render()
 
-    # mcts.search() # search before so label isn't complete nonsense
-    # self.database.append_policy((-1)**(env.turn == -1)*env.board, mcts.get_pi()) # append terminal state
-    # self.database.append_value(game_state, len(env.move_hist))
-    self.database.append_value(game_state, len(env.move_hist)-1)
+    self.database.append_value(game_state, len(env.move_hist))
 
     print(f"Player with token: {game_state} won the game in {len(env.move_hist)} moves")
 
@@ -85,4 +85,3 @@ class Trainer:
         self.database.save_data(buffer_path)
         self.database.clear()
       game_nr += 1
-

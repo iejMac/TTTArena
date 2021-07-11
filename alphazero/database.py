@@ -91,7 +91,7 @@ class DataBase:
   def append_value(self, winner, game_length):
     val_labs = []
     offset = (-1.0)**(winner == -1.0)
-    for i in range(game_length + 1):
+    for i in range(game_length):
       val_labs += [offset * (-1.0)**(i%2 == 1)] * self.augmentation_coefficient
 
     if len(self.value_mask) == len(val_labs):

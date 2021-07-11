@@ -19,15 +19,9 @@ class Environment():
     self.turn = self.x_token
     return
 
-  def step(self, action, override_turn=None):
-
-    if override_turn is not None:
-      self.board[action[0]][action[1]] = override_turn
-      self.move_hist.append((action, override_turn))
-      return
-
+  def step(self, action):
     self.board[action[0]][action[1]] = self.turn
-    self.move_hist.append((action, self.turn))
+    self.move_hist.append(action)
     self.turn *= -1 # turn swaps
     return self.game_over(self.board)
 
@@ -65,12 +59,8 @@ class Environment():
 
   def render(self):
     show_board = np.full((self.board_len, self.board_len), ' ')
-    for move in self.move_hist:
-      action, turn = move
-      if turn == 1:
-        show_board[action[0]][action[1]] = 'X'
-      else:
-        show_board[action[0]][action[1]] = 'O'
+    for i, action in enumerate(self.move_hist):
+      show_board[action[0]][action[1]] = 'X' if i % 2 == 0 else 'O'
     print("="*120)    
     print(show_board)
     print("="*120)    

@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 from copy import deepcopy
 from collections import deque
@@ -8,10 +9,16 @@ from torch import nn
 from torch import optim
 from torch.nn import functional as F
 
-from mcts import MCTS
-from database import DataBase
-from database import prepare_state
+sys.path.append('..')
+
 from environment import Environment
+
+from alphazero.mcts import MCTS
+from alphazero.database import DataBase
+from alphazero.database import prepare_state
+
+torch.manual_seed(80085)
+np.random.seed(80085)
 
 def softXEnt (inp, target):
   logprobs = torch.log(inp)
@@ -30,23 +37,16 @@ class IdentityBlock(nn.Module):
     self.conv2 = nn.Conv2d(F1, F2, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv3 = nn.Conv2d(F2, F1, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
 
-    # self.bn1 = nn.BatchNorm2d(F1)
-    # self.bn2 = nn.BatchNorm2d(F2)
-    # self.bn3 = nn.BatchNorm2d(F1)
-
   def forward(self, x):
     shortcut = x
 
     x = self.conv1(x)
-    # x = self.bn1(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv2(x)
-    # x = self.bn2(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv3(x)
-    # x = self.bn3(x)
     x += shortcut
     x = F.leaky_relu(x, 0.2)
 
@@ -62,27 +62,18 @@ class ConvolutionalBlock(nn.Module):
     self.conv3 = nn.Conv2d(F2, F3, padding=(pad, pad), kernel_size=f, stride=1, bias=use_bias)
     self.conv_change = nn.Conv2d(input_dim, F3, padding=(0,0), kernel_size=1, stride=1, bias=use_bias)
 
-    # self.bn1 = nn.BatchNorm2d(F1)
-    # self.bn2 = nn.BatchNorm2d(F2)
-    # self.bn3 = nn.BatchNorm2d(F3)
-    # self.bnc = nn.BatchNorm2d(F3)
-
   def forward(self, x):
     shortcut = x
 
     x = self.conv1(x)
-    # x = self.bn1(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv2(x)
-    # x = self.bn2(x)
     x = F.leaky_relu(x, 0.2)
 
     x = self.conv3(x)
-    # x = self.bn3(x)
 
     shortcut = self.conv_change(shortcut)
-    # shortcut = self.bnc(shortcut)
 
     x += shortcut
     x = F.leaky_relu(x, 0.2)
@@ -131,11 +122,8 @@ class Brain(nn.Module):
     self.policy_head = PolicyHead(input_shape, use_bias)
     self.value_head = ValueHead(use_bias)
 
-    # self.bn1 = nn.BatchNorm2d(16)
-
   def forward(self, x):
     x = self.conv1(x)
-    # x = self.bn1(x)
     x = F.leaky_relu(x)
     x = self.convolutional1(x)
     x = self.identity1(x)
@@ -171,15 +159,15 @@ class ZeroTTT():
 
   def save_brain(self, model_name, opt_state_name):
     print("Saving brain...")
-    torch.save(self.brain.state_dict(), os.path.join('models', model_name))
+    torch.save(self.brain.state_dict(), os.path.join('alphazero/models', model_name))
     if opt_state_name is not None:
-        torch.save(self.optimizer.state_dict(), os.path.join('models', opt_state_name))
+        torch.save(self.optimizer.state_dict(), os.path.join('alphazero/models', opt_state_name))
 
   def load_brain(self, model_name, opt_state_name):
     print("Loading brain...")
-    self.brain.load_state_dict(torch.load(os.path.join('models', model_name), map_location=self.device))
+    self.brain.load_state_dict(torch.load(os.path.join('alphazero/models', model_name), map_location=self.device))
     if opt_state_name is not None:
-        self.optimizer.load_state_dict(torch.load(os.path.join('models', opt_state_name), map_location=self.device))
+        self.optimizer.load_state_dict(torch.load(os.path.join('alphazero/models', opt_state_name), map_location=self.device))
     return
 
   def predict(self, x, interpret_output=True):

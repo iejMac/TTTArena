@@ -29,14 +29,3 @@ args = {
 
 trainer = Trainer(model, args)
 trainer.generate_game(True)
-
-'''
-  TODO:
-  1. Action space: add pass move which is to be played at the terminal state
-  2. Consider adding T time steps in the past
-
-  Keep eye on:
-- Value net saturating since it uses a tanh but nothing reverses the exp on tanh because we use MSE
-'''
-
-

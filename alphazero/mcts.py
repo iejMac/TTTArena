@@ -1,10 +1,17 @@
+import sys
 import math
 import random
 import numpy as np
 from copy import deepcopy
 
-from database import prepare_state
+sys.path.append('..')
+
 from environment import Environment
+
+from alphazero.database import prepare_state
+
+np.random.seed(80085)
+random.seed(80085)
 
 def PUCT_score(child_value, child_prior, parent_visit_count, child_visit_count, c_puct):
   pb_c = child_prior * math.sqrt(parent_visit_count) / (child_visit_count + 1)

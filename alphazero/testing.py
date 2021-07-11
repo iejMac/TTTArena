@@ -1,5 +1,8 @@
 import os
+import sys
 import numpy as np
+
+sys.path.append('..')
 
 from mcts import MCTS
 from model import ZeroTTT
@@ -186,5 +189,5 @@ pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 test.play_model(player="O", mcts_args=mcts_args)
 
 if False:
-    for i in range(5):
-        test.visualize_model_output(eval(f"pos{i+1}"), False)
+  for i in range(5):
+    test.visualize_model_output(eval(f"pos{i+1}"), False)

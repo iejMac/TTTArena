@@ -27,7 +27,7 @@ args = {
   "mcts_args": mcts_args,
   "db_args": db_args,
   "board_len": 10
-}
+}     
 
 def manage_trainer(model_name, opt_state_name, model_args, trainer_args, buffer_path, seed):
   np.random.seed(seed)
@@ -40,7 +40,7 @@ def manage_trainer(model_name, opt_state_name, model_args, trainer_args, buffer_
       break
     except Exception as e:
       print(e)
-
+  
 class Manager:
   def __init__(self, model_name, opt_state_name, model_args, trainer_args, buffer_path, n_proc):
     if model_name == "None":
