@@ -15,22 +15,19 @@ class Human(Agent):
     pass
 
   def make_action(self, state):
-    while True:
-      move_str = input("Input a move y, x: ")
-      try:
-        move = tuple(int(x) for x in move_str.split(","))
-      except ValueError:
-        print("Incorrect format, try again.")
-        continue
-
-      if move[0] < 0 or move[0] >= len(state) or move[1] < 0 or move[1] >= len(state):
-        print("Move out of bounds, try again.")
-        continue
-      if state[move[0]][move[1]] != 0:
-        print("Space already taken, try again.") 
-        continue
-      break
-    return move
+    cell_size = 30 # get this from main game.py file somehow (global var)
+    chosen = False
+    while not chosen:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          return None
+        if event.type == pygame.MOUSEBUTTONDOWN:
+          mouse_x, mouse_y = pygame.mouse.get_pos()
+          pos_x, pos_y = mouse_x//cell_size, mouse_y//cell_size
+          if state[pos_y][pos_x] != 0:
+            continue
+          chosen = True
+    return (pos_y, pos_x)
 
   def update_state(self, move):
     pass
@@ -40,22 +37,3 @@ class Human(Agent):
     name = input("Enter player name: ")
     controls = "keyboard" if sys.platform == "darwin" else "mouse"
     return (name, controls)
-
-'''
-      if self.controls == "mouse":
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        self.pos_x, self.pos_y = mouse_x//self.cell_size, mouse_y//self.cell_size
-      elif self.controls == "keyboard":
-        pass
-
-      pygame.draw.rect(self.screen, (105, 105, 105), (1 + 30*mouse_x, 1 + 30*mouse_y, 29, 29))
-
-      for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-          running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN and mouse_x < self.board_len and mouse_y < self.board_len:
-          data.append((mouse_x, mouse_y))
-
-
-
-'''

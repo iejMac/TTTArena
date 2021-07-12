@@ -50,15 +50,10 @@ class Game:
       self.screen.blit(self.xo_textsurface[i%2], (coords[1]*self.cell_size + self.cell_size//7, coords[0]*self.cell_size + self.cell_size//14))
 
   def get_players(self):
-    from human.agent import Human
-    self.xp = Human("Maciej", "mouse")
-    self.op = Human("Bartosz", "mouse")
-    '''
     print("-= Player X =-")
     self.xp = get_agent()
     print("-= Player O =-")
     self.op = get_agent()
-    '''
     
   def play_game(self):
 
@@ -85,7 +80,6 @@ class Game:
         if event.type == pygame.QUIT:
           running = False
 
-
       if not self.arena.is_active():
         again = input("Would you like to play again? (y/n): ")
         if again == 'y':
@@ -94,7 +88,7 @@ class Game:
         break
 
       if self.arena.ready_for_move:
-        self.arena.move()
+        running = self.arena.move()
 
 
     pygame.quit()
