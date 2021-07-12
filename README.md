@@ -5,7 +5,7 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that sea
 1. Player with the X token always starts the game.
 2. Players alternate taking moves until a terminal state is encountered.
 3. A terminal state is a state in which:
-  - there are 5 consecutive tokens vertically, horizontally, or diagonally in which case the player whose token it is wins,
+  - a player has 5 consecutive tokens vertically, horizontally, or diagonally in which case the player whose token it is wins,
   - there are no more empty positions and no player has won the game in which case it is a tie
 4. The board can be any shape given by mxn where m, n > 5 (usually m == n > 10, the better you are the more space you need)
 
