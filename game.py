@@ -1,7 +1,10 @@
 import os
 import pygame
 import inspect
+import argparse
 import importlib
+
+from multiprocessing import Process
 
 from arena import Arena
 
@@ -20,64 +23,87 @@ def get_agent():
   agent = agent_cls(*params)
   return agent
 
-def drawgrid(w, rows, surface):
-  sizeBtwn = w//rows
-  x = 0
-  y = 0
-  for l in range(rows + 1):
-    pygame.draw.line(surface, (0, 0, 0), (x, 0), (x, w))
-    pygame.draw.line(surface, (0, 0, 0), (0, y), (w, y))
-    x += sizeBtwn
-    y += sizeBtwn
+def get_arg_parser():
+  parser = argparse.ArgumentParser(description="Play Tic-Tac-Toe 5")
+  parser.add_argument("--board_len", type=int, default=10)
+  return parser
 
-def drawdata(data, surface):
-  for i, coords in enumerate(data):
-    if i%2:
-        screen.blit(textsurfaceX, (coords[0]*size + size/3, coords[1]*size))
-    else:
-        screen.blit(textsurfaceO, (coords[0]*size + size/3, coords[1]*size))
+class Game:
+  def __init__(self, board_len):
+    self.cell_size = 30 # constant cell size
+    self.board_len = board_len
 
-def play():
+    self.pos_x, self.pos_y = self.board_len//2, self.board_len//2
+
+  def draw_board(self):
+    # Grid:
+    w = self.board_len * self.cell_size
+    x, y = 0, 0
+    for _ in range(self.board_len + 1):
+      pygame.draw.line(self.screen, (0, 0, 0), (x, 0), (x, w))
+      pygame.draw.line(self.screen, (0, 0, 0), (0, y), (w, y))
+      x += self.cell_size
+      y += self.cell_size
+
+    # Tokens:
+    for i, coords in enumerate(self.arena.env.move_hist):
+      self.screen.blit(self.xo_textsurface[i%2], (coords[1]*self.cell_size + self.cell_size//7, coords[0]*self.cell_size + self.cell_size//14))
+
+  def get_players(self):
+    from human.agent import Human
+    self.xp = Human("Maciej", "mouse")
+    self.op = Human("Bartosz", "mouse")
+    '''
+    print("-= Player X =-")
+    self.xp = get_agent()
+    print("-= Player O =-")
+    self.op = get_agent()
+    '''
+    
+  def play_game(self):
+
     pygame.init()
+    clock = pygame.time.Clock()
+    myfont = pygame.font.SysFont('courier new', 1.5*self.cell_size)
+    self.xo_textsurface = [myfont.render('X', False, (0, 0, 0)), myfont.render('O', False, (0, 0, 0))]
 
-    screen_height = 600
-    screen = pygame.display.set_mode([screen_height, screen_height])
-
-
-    rows = 10
-    size = screen_height/rows
-
-    data = []
-
-    myfont = pygame.font.SysFont('courier new', int(3*size/4))
-    textsurfaceX = myfont.render('X', False, (0, 0, 0))
-    textsurfaceO = myfont.render('O', False, (0, 0, 0))
+    screen_len = self.board_len * self.cell_size
+    self.screen = pygame.display.set_mode([screen_len, screen_len])
+    self.arena = Arena(self.xp, self.op, board_len=self.board_len)
+    pygame.display.update() # hack for grid to appear before move
+    clock.tick(60)
 
     running = True
     while running:
-      
-      (mouse_x, mouse_y) = pygame.mouse.get_pos()
-      mouse_x = int(mouse_x/size)
-      mouse_y = int(mouse_y/size)
-      
+
+      self.screen.fill((255, 255, 255))
+      self.draw_board()
+      pygame.display.update()
+      clock.tick(60)
+
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           running = False
-        if event.type == pygame.MOUSEBUTTONDOWN and mouse_x < rows and mouse_y < rows:
-          data.append((mouse_x, mouse_y))
 
-      screen.fill((255, 255, 255))
 
-      drawgrid(screen_height, rows, screen)
-      drawdata(data, screen)
-      
-      if mouse_x < rows and mouse_y < rows:
-        pygame.draw.rect(screen, (190, 190, 190), (size*mouse_x, size*mouse_y, size, size))
-      
-      pygame.display.flip()
+      if not self.arena.is_active():
+        again = input("Would you like to play again? (y/n): ")
+        if again == 'y':
+          self.arena.reset()
+          continue
+        break
+
+      if self.arena.ready_for_move:
+        self.arena.move()
+
+
+    pygame.quit()
 
 if __name__ == "__main__":
-  p1 = get_agent()
-  p2 = get_agent()
+  parser = get_arg_parser()
+  args = parser.parse_args()
 
-  a = Arena(p1, p2, board_len=10)
+  g = Game(args.board_len)
+
+  g.get_players()
+  g.play_game()

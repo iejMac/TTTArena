@@ -28,7 +28,7 @@ class ZeroAgent(Agent):
     self.model.brain.eval()
     self.args = args
 
-  def init_state(self, state):
+  def reset(self, state):
     self.mcts = MCTS(self.model, state, self.args["mcts_args"])
 
   def make_action(self, state):
