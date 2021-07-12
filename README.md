@@ -9,6 +9,18 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that sea
   - there are no more empty positions and no player has won the game in which case it is a tie
 4. The board can be any shape given by mxn where m, n > 5 (usually m == n > 10, the better you are the more space you need)
 
+## Setup:
+1. Clone the repository into your home directory:
+```
+cd ~
+git clone https://github.com/iejMac/AlphaTTT.git
+```
+2. Install python modules:
+```
+pip install -r AlphaTTT/requirements.txt
+```
+3. Play/Observe some games!
+
 ## Data:
 In "./data" there is a collection of games played by humans in the format of alterating move coordinates.
 
