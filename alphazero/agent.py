@@ -46,7 +46,9 @@ class ZeroAgent(Agent):
 
     if input("Would you like to adjust MCTS args? ") != "":
       for key in default_mcts_args:
-        default_mcts_args[key] = type(default_mcts_args[key])(input(f"{key}: "))
+        inp = input(f"{key}: ")
+        if inp != "":
+          default_mcts_args[key] = type(default_mcts_args[key])(inp)
         
     args = {
       "model_args": default_model_args,

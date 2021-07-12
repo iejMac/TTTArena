@@ -36,6 +36,9 @@ class Arena:
     self.ready_for_move = True
 
     if self.game_state != 10:
-      print(f"{current_player.name} won in {len(self.env.move_hist)} moves") 
+      if self.game_state == 0:  
+        print("It's a draw")
+      else:
+        print(f"{current_player.name} won in {len(self.env.move_hist)} moves") 
 
     return True
