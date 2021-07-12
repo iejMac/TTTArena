@@ -72,6 +72,8 @@ class Game:
     running = True
     while running:
 
+      player_name, player_token = (self.arena.xa.name, "X") if self.arena.env.turn == 1 else (self.arena.oa.name, "O")
+      pygame.display.set_caption(f"TTT 5 - {player_name}'s turn ({player_token})")
       self.screen.fill((255, 255, 255))
       self.draw_board()
       pygame.display.update()
@@ -89,8 +91,6 @@ class Game:
         break
 
       if self.arena.ready_for_move:
-        player_name, player_token = (self.arena.xa.name, "X") if self.arena.env.turn == 1 else (self.arena.oa.name, "O")
-        pygame.display.set_caption(f"TTT 5 - {player_name}'s turn ({player_token})")
         running = self.arena.move()
 
 
