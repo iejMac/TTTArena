@@ -14,8 +14,8 @@ default_model_args = {
 }
 
 default_mcts_args = {
-  "num_simulations": 1000,
-  "alpha": 0.1,
+  "num_simulations": 2000,
+  "alpha": 0.01,
   "c_puct": 4,
   "dirichlet_alpha": 0.3,
   "tau": 0.01
