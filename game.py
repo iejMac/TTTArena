@@ -24,7 +24,7 @@ def get_agent():
   return agent
 
 def get_arg_parser():
-  parser = argparse.ArgumentParser(description="Play Tic-Tac-Toe 5")
+  parser = argparse.ArgumentParser("Tool for observing Tic-Tac-Toe 5 games")
   parser.add_argument("--board_len", type=int, default=10)
   return parser
 

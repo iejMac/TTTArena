@@ -21,6 +21,33 @@ pip install -r AlphaTTT/requirements.txt
 ```
 3. Play/Observe some games!
 
+## Usage:
+1. Launch game:
+```
+usage: python game.py [-h] [--board_len BOARD_LEN]
+
+Tool for observing Tic-Tac-Toe 5 games
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --board_len BOARD_LEN
+```
+2. Enter player types (name of solution folder) and corresponding parameters in the command line:
+```
+-= Player X =-
+Player type: human
+(solution specific parameters)
+-= Player O =-
+Player type: alphazero
+(solution specific parameters)
+```
+3. Observe the game
+
+## Creating a solution:
+1. Make a new directory with your solutions name
+2. Create your_solution/agent.py with a class that inherits Agent from ./agent.py and implements all of the methods described in it.
+3. Test it out using game.py
+
 ## Data:
 In "./data" there is a collection of games played by humans in the format of alterating move coordinates.
 
