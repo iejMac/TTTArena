@@ -13,11 +13,11 @@ This game is variation of Tic-Tac-Toe that just adds some complexity so that sea
 1. Clone the repository into your home directory:
 ```
 cd ~
-git clone https://github.com/iejMac/AlphaTTT.git
+git clone https://github.com/iejMac/TTTArena.git
 ```
 2. Install python modules:
 ```
-pip install -r AlphaTTT/requirements.txt
+pip install -r TTTArena/requirements.txt
 ```
 3. Play/Observe some games!
 

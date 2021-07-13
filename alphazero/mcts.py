@@ -5,7 +5,7 @@ import random
 import numpy as np
 from copy import deepcopy
 
-sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
+sys.path.append(os.path.join(os.environ["HOME"], "TTTArena"))
 
 from environment import Environment
 

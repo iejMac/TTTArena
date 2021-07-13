@@ -2,7 +2,7 @@ import os
 import sys
 import torch
 
-sys.path.append(os.path.join(os.environ["HOME"], "AlphaTTT"))
+sys.path.append(os.path.join(os.environ["HOME"], "TTTArena"))
 
 from mcts import MCTS
 from database import DataBase

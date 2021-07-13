@@ -61,8 +61,8 @@ class Manager:
 # TODO: add model/mcts args update with optional args in argparse
 def get_arg_parser():
   parser = argparse.ArgumentParser(description="Manage multiple Trainers generating a replay buffer")
-  parser.add_argument("model_name", type=str, help="Name of model stored in AlphaTTT/mcts/models")
-  parser.add_argument("opt_state_name", type=str, help="Name of optimizer state stored in AlphaTTT/mcts/models")
+  parser.add_argument("model_name", type=str, help="Name of model stored in TTTArena/mcts/models")
+  parser.add_argument("opt_state_name", type=str, help="Name of optimizer state stored in TTTArena/mcts/models")
   parser.add_argument("n_trainers", type=int, help="Number of trainers")
   parser.add_argument("buffer_path", type=str, help="Path to replay buffer")
 
