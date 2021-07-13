@@ -32,14 +32,21 @@ optional arguments:
   -h, --help            show this help message and exit
   --board_len BOARD_LEN
 ```
-2. Enter player types (name of solution folder) and corresponding parameters in the command line:
+2. Enter player types (name of given solution folder) and corresponding parameters in the command line:
 ```
 -= Player X =-
 Player type: human
-(solution specific parameters)
+Enter player name: Maciej
 -= Player O =-
 Player type: alphazero
-(solution specific parameters)
+Model name: trained_model_3
+Optimizer state name: trained_opt_state_3
+Would you like to adjust MCTS args? yes
+num_simulations: 2000 
+alpha: 0.01
+c_puct: 4
+dirichlet_alpha: 0.3
+tau: 0.01
 ```
 3. Observe the game
 
