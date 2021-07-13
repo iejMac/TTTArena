@@ -32,7 +32,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --board_len BOARD_LEN
 ```
-2. Enter player types (name of given solution folder) and corresponding parameters in the command line:
+2. Enter player types (name of given solution folder) and corresponding parameters in the command line. In order to play against a solution input "human" as player type:
 ```
 -= Player X =-
 Player type: human
