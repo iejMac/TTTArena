@@ -7,9 +7,8 @@ sys.path.append(os.path.join(os.environ["HOME"], "TTTArena"))
 from agent import Agent
 
 class Human(Agent):
-  def __init__(self, name, controls):
+  def __init__(self, name):
     super().__init__(name)
-    self.controls = controls
 
   def reset(self, state):
     pass
@@ -35,5 +34,4 @@ class Human(Agent):
   @staticmethod
   def get_params():
     name = input("Enter player name: ")
-    controls = "keyboard" if sys.platform == "darwin" else "mouse"
-    return (name, controls)
+    return (name,)
