@@ -134,41 +134,6 @@ class Test:
     print(f"Model won {xo_wins[0]}/{games_per_side} games as X ({100*(xo_wins[0]/games_per_side)}%)")      
     print(f"Model won {xo_wins[1]}/{games_per_side} games as O ({100*(xo_wins[1]/games_per_side)}%)")      
 
-  def play_model(self, player="X",
-    mcts_args={
-      "num_simulations": 100,
-      "dirichlet_alpha": 0.3,
-      "alpha": 0.1,
-      "c_puct": 4
-    }):
-
-    mcts = MCTS(self.model, self.env.board, mcts_args)
-    game_state = 10
-    tau = 0.01
-    turn = 1 if player == "X" else -1 # your move vs model move
-
-    self.env.render()
-
-    while game_state == 10:
-      if turn == 1:
-        move_str = input("Input a move y, x: ")
-        move = tuple(int(x) for x in move_str.split(","))
-        mcts.select_move(external_move=move)
-      else:
-        mcts.search()
-        move = mcts.select_move(tau=tau)
-
-      game_state = self.env.step(move)
-      turn *= -1
-
-      self.env.render()
-
-    # TODO: hack assumes, no ties
-    winning_token = "X" if game_state == 1 else "O"
-    winner = "You" if winning_token == player else "Model"
-    print(f"{winner} won in {len(self.env.move_hist)} moves")
-    self.env.reset()
-
 mcts_args = {
   "num_simulations": 2000,
   "alpha": 0.1,
@@ -187,7 +152,7 @@ pos5 = [(3, 4), (5, 5), (3, 5), (5, 4), (3, 6), (4, 4), (3, 7), (4, 5), (3, 8)]
 
 # test.human_game_evaluation("../data/30x30")
 # test.compare_model("trained_model_2", "trained_opt_state_2", 40, render=1, mcts_args=mcts_args)
-test.play_model(player="O", mcts_args=mcts_args)
+test.visualize_model_output(pos1, True)
 
 if False:
   for i in range(5):
