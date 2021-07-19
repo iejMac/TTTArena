@@ -13,12 +13,12 @@ Update: Apparently this game exists and is called "Gomoku".
 
 ## Setup:
 1. Clone the repository into your home directory:
-```
+```bash
 cd ~
 git clone https://github.com/iejMac/TTTArena.git
 ```
 2. Install python modules:
-```
+```bash
 pip install -r TTTArena/requirements.txt
 ```
 3. Play/Observe some games!
