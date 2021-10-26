@@ -21,7 +21,11 @@ git clone https://github.com/iejMac/TTTArena.git
 ```bash
 pip install -r TTTArena/requirements.txt
 ```
-3. Play/Observe some games!
+3. If you're using a Windows machine set the HOME variable:
+```
+set HOME=%USERPROFILE%
+```
+4. Play/Observe some games!
 
 ## Usage:
 1. Launch game:
