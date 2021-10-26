@@ -44,7 +44,7 @@ class ZeroAgent(Agent):
     model_name = input("Model name: ")
     opt_state_name = input("Optimizer state name: ")
 
-    if input("Would you like to adjust MCTS args? ") != "":
+    if input("Would you like to adjust MCTS args? (y/n)") != "n":
       for key in default_mcts_args:
         inp = input(f"{key}: ")
         if inp != "":
