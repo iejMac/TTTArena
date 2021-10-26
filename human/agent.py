@@ -10,9 +10,6 @@ class Human(Agent):
   def __init__(self, name):
     super().__init__(name)
 
-  def reset(self, state):
-    pass
-
   def make_action(self, state):
     cell_size = 30 # get this from main game.py file somehow (global var)
     chosen = False
@@ -27,9 +24,6 @@ class Human(Agent):
             continue
           chosen = True
     return (pos_y, pos_x)
-
-  def update_state(self, move):
-    pass
 
   @staticmethod
   def get_params():
